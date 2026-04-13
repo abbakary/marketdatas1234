@@ -14,9 +14,7 @@ import {
 import ProjectFiltersPanel from "../components/ProjectFiltersPanel";
 import PageLayout from "../components/PageLayout";
 import { categoriesData } from "../components/CategorySidebar";
-
-const PRIMARY = "#FF8C00"; // Orange
-const SECONDARY = "#20B2AA"; // Teal
+import { useThemeColors } from "../../../utils/useThemeColors";
 
 const projectDatasets = [
   { id: 1, title: "Open Climate Monitoring Network", author: "ClimateResearch Lab", category: "Agriculture and Environment", projectType: "New Dataset Creation", monetization: "Open Data", fundingGoal: "$15,000", usability: "10.0", updated: "Updated 1 day ago", files: "8 Files (CSV, JSON)", size: "12.4 GB", downloads: "3,841 downloads", votes: 89, image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=80", price: "$449.00 USD", status: "Open for Investment", contributors: 42, forks: 128, stars: 384, progress: 72, tags: ["climate", "open-data", "monitoring"], avatars: ["https://i.pravatar.cc/40?img=11", "https://i.pravatar.cc/40?img=14", "https://i.pravatar.cc/40?img=21"] },
@@ -38,6 +36,9 @@ const statusColors = { Active: { bg: "#f0fdf4", color: "#16a34a", border: "#bbf7
 
 export default function ProjectPage() {
   const navigate = useNavigate();
+  const themeColors = useThemeColors();
+  const PRIMARY = "#FF8C00"; // Orange
+  const SECONDARY = themeColors.teal;
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
@@ -235,7 +236,7 @@ export default function ProjectPage() {
                         <Typography sx={{ fontSize: "0.78rem", color: "#16a34a", fontWeight: 600 }}>{s.change}</Typography>
                       </Box>
                     </Box>
-                    <Box sx={{ p: 1.2, borderRadius: 2, backgroundColor: "#e6f7f6" }}>{s.icon}</Box>
+                    <Box sx={{ p: 1.2, borderRadius: 2, backgroundColor: "rgba(97, 197, 195, 0.1)" }}>{s.icon}</Box>
                   </Box>
                 </CardContent>
               </Card>
@@ -244,9 +245,9 @@ export default function ProjectPage() {
 
           {/* Search */}
           <TextField fullWidth placeholder="Search projects, tags, contributors..." value={search} onChange={e => setSearch(e.target.value)} variant="outlined"
-            sx={{ mb: 3, backgroundColor: "var(--bg-white)", borderRadius: "10px", "& .MuiOutlinedInput-root": { borderRadius: "10px", height: 50, fontSize: '0.95rem' } }}
+            sx={{ mb: 3, backgroundColor: "var(--card-bg)", borderRadius: "10px", "& .MuiOutlinedInput-root": { borderRadius: "10px", height: 50, fontSize: '0.95rem' } }}
             InputProps={{
-              startAdornment: <InputAdornment position="start"><Search size={20} color="#111827" /></InputAdornment>,
+              startAdornment: <InputAdornment position="start"><Search size={20} color={themeColors.textMuted} /></InputAdornment>,
               endAdornment: (
                 <InputAdornment position="end">
                   <Box 
@@ -275,14 +276,14 @@ export default function ProjectPage() {
             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
               {categories.map(cat => (
                 <Chip key={cat} label={cat} onClick={() => setSelectedCategory(cat)} variant={selectedCategory === cat ? "filled" : "outlined"}
-                  sx={{ borderRadius: "6px", fontSize: "0.82rem", height: 30, backgroundColor: selectedCategory === cat ? PRIMARY : "var(--bg-white)", color: selectedCategory === cat ? "#fff" : "var(--text-dark)", borderColor: "var(--border-color)", "&:hover": { backgroundColor: selectedCategory === cat ? PRIMARY : "var(--hover-bg)" } }}
+                  sx={{ borderRadius: "6px", fontSize: "0.82rem", height: 30, backgroundColor: selectedCategory === cat ? PRIMARY : "var(--card-bg)", color: selectedCategory === cat ? "#fff" : "var(--text-dark)", borderColor: "var(--border-color)", "&:hover": { backgroundColor: selectedCategory === cat ? PRIMARY : themeColors.hoverBg } }}
                 />
               ))}
             </Box>
             <Box sx={{ display: "flex", gap: 1 }}>
               {statuses.map(s => (
                 <Chip key={s} label={s} onClick={() => setSelectedStatus(s)} variant={selectedStatus === s ? "filled" : "outlined"}
-                  sx={{ borderRadius: "6px", fontSize: "0.82rem", height: 30, backgroundColor: selectedStatus === s ? "var(--text-dark)" : "var(--bg-white)", color: selectedStatus === s ? "#fff" : "var(--text-dark)", borderColor: "var(--border-color)" }}
+                  sx={{ borderRadius: "6px", fontSize: "0.82rem", height: 30, backgroundColor: selectedStatus === s ? "var(--text-dark)" : "var(--card-bg)", color: selectedStatus === s ? "#fff" : "var(--text-dark)", borderColor: "var(--border-color)" }}
                 />
               ))}
             </Box>
@@ -296,6 +297,8 @@ export default function ProjectPage() {
                 dataset={d}
                 onOpen={() => navigate(`/dataset-info/${d.id}`, { state: { dataset: d } })}
                 onVote={(e) => handleVote(d.id, e)}
+                themeColors={themeColors}
+                PRIMARY={PRIMARY}
               />
             ))}
           </Box>
@@ -318,22 +321,22 @@ export default function ProjectPage() {
             <Fade in={isModalOpen}>
               <Box sx={{
                 position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-                width: { xs: "90%", sm: 650, md: 750 }, bgcolor: "background.paper", borderRadius: 3,
+                width: { xs: "90%", sm: 650, md: 750 }, bgcolor: "var(--card-bg)", borderRadius: 3,
                 boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
                 p: 0, overflow: "hidden", outline: "none", maxHeight: "90vh", display: "flex", flexDirection: "column"
               }}>
                 {/* Modal Header */}
-                <Box sx={{ px: 3, py: 2.5, backgroundColor: "#f9fafb", borderBottom: "1px solid #e5e7eb", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box sx={{ px: 3, py: 2.5, backgroundColor: themeColors.isDarkMode ? "rgba(30, 41, 59, 0.5)" : "#f9fafb", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                    <Box sx={{ p: 1, backgroundColor: "#e6f7f6", borderRadius: 1.5, display: "flex" }}>
+                    <Box sx={{ p: 1, backgroundColor: "rgba(97, 197, 195, 0.1)", borderRadius: 1.5, display: "flex" }}>
                       <Plus size={20} color={PRIMARY} />
                     </Box>
                     <Box>
-                      <Typography sx={{ fontSize: "1.1rem", fontWeight: 800, color: "#111827" }}>Request Collaborator Project</Typography>
-                      <Typography sx={{ fontSize: "0.75rem", color: "#6b7280" }}>Create a structured order for your dataset/project needs</Typography>
+                      <Typography sx={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-dark)" }}>Request Collaborator Project</Typography>
+                      <Typography sx={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Create a structured order for your dataset/project needs</Typography>
                     </Box>
                   </Box>
-                  <IconButton onClick={handleCloseModal} size="small" sx={{ color: "#9ca3af", "&:hover": { color: "#111827", backgroundColor: "#f3f4f6" } }}>
+                  <IconButton onClick={handleCloseModal} size="small" sx={{ color: themeColors.textMuted, "&:hover": { color: "var(--text-dark)", backgroundColor: themeColors.hoverBg } }}>
                     <X size={20} />
                   </IconButton>
                 </Box>
@@ -346,7 +349,7 @@ export default function ProjectPage() {
                       </Typography>
                       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2.5 }}>
                         <Box>
-                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "#374151", mb: 0.8 }}>
+                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-dark)", mb: 0.8 }}>
                             Project Title *
                           </Typography>
                           <TextField fullWidth placeholder="e.g. Healthcare Claims Intelligence Dataset" value={form.title} onChange={handleInputChange("title")} required
@@ -354,7 +357,7 @@ export default function ProjectPage() {
                         </Box>
 
                         <Box>
-                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "#374151", mb: 0.8 }}>
+                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-dark)", mb: 0.8 }}>
                             Category *
                           </Typography>
                           <TextField fullWidth select value={form.category} onChange={handleInputChange("category")} required
@@ -367,7 +370,7 @@ export default function ProjectPage() {
                       </Box>
 
                       <Box sx={{ mt: 2.5 }}>
-                        <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "#374151", mb: 0.8 }}>
+                        <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-dark)", mb: 0.8 }}>
                           Detailed Description *
                         </Typography>
                         <TextField fullWidth multiline rows={3} placeholder="Describe your need, technical requirements, use case, and expected outcomes..." value={form.description} onChange={handleInputChange("description")} required
@@ -382,7 +385,7 @@ export default function ProjectPage() {
                       </Typography>
                       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr 1fr" }, gap: 2.5 }}>
                         <Box>
-                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "#374151", mb: 0.8 }}>
+                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-dark)", mb: 0.8 }}>
                             Data Type *
                           </Typography>
                           <TextField fullWidth select value={form.dataType} onChange={handleInputChange("dataType")} required
@@ -398,7 +401,7 @@ export default function ProjectPage() {
                         </Box>
 
                         <Box>
-                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "#374151", mb: 0.8 }}>
+                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-dark)", mb: 0.8 }}>
                             Dataset Size *
                           </Typography>
                           <TextField fullWidth select value={form.datasetSize} onChange={handleInputChange("datasetSize")} required
@@ -412,7 +415,7 @@ export default function ProjectPage() {
                         </Box>
 
                         <Box>
-                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "#374151", mb: 0.8 }}>
+                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-dark)", mb: 0.8 }}>
                             Source Preference
                           </Typography>
                           <TextField fullWidth placeholder="e.g. Public APIs, Proprietary, Web scraped..." value={form.sourcePreference} onChange={handleInputChange("sourcePreference")}
@@ -428,7 +431,7 @@ export default function ProjectPage() {
                       </Typography>
                       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2.5 }}>
                         <Box>
-                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "#374151", mb: 0.8 }}>
+                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-dark)", mb: 0.8 }}>
                             Budget Min (USD) *
                           </Typography>
                           <TextField fullWidth placeholder="e.g. 2000" type="number" value={form.budgetMin} onChange={handleInputChange("budgetMin")} required
@@ -436,7 +439,7 @@ export default function ProjectPage() {
                         </Box>
 
                         <Box>
-                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "#374151", mb: 0.8 }}>
+                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-dark)", mb: 0.8 }}>
                             Budget Max (USD) *
                           </Typography>
                           <TextField fullWidth placeholder="e.g. 5000" type="number" value={form.budgetMax} onChange={handleInputChange("budgetMax")} required
@@ -445,7 +448,7 @@ export default function ProjectPage() {
                       </Box>
 
                       <Box sx={{ mt: 2.5 }}>
-                        <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "#374151", mb: 0.8 }}>
+                        <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-dark)", mb: 0.8 }}>
                           Deadline (Required Completion) *
                         </Typography>
                         <TextField fullWidth type="date" value={form.deadline} onChange={handleInputChange("deadline")} required
@@ -460,18 +463,18 @@ export default function ProjectPage() {
                       </Typography>
 
                       <Box sx={{ mb: 2.5 }}>
-                        <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "#374151", mb: 0.8 }}>
+                        <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-dark)", mb: 0.8 }}>
                           Preferred Collaborator (Optional)
                         </Typography>
                         <TextField fullWidth placeholder="Name or ID of preferred collaborator (leave empty to open bids)" value={form.preferredCollaborator} onChange={handleInputChange("preferredCollaborator")}
                           sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
                       </Box>
 
-                      <Box sx={{ p: 2, backgroundColor: "#f0fdfa", borderRadius: 2, border: `1px solid ${SECONDARY}20`, display: "flex", gap: 2, alignItems: "center" }}>
+                      <Box sx={{ p: 2, backgroundColor: "rgba(97, 197, 195, 0.05)", borderRadius: 2, border: `1px solid ${SECONDARY}20`, display: "flex", gap: 2, alignItems: "center" }}>
                         <input type="checkbox" checked={form.openToSuggestions} onChange={(e) => setForm({ ...form, openToSuggestions: e.target.checked })} style={{ width: 18, height: 18, cursor: "pointer" }} />
                         <Box>
-                          <Typography sx={{ fontSize: "0.9rem", fontWeight: 700, color: "#111827" }}>Open to Suggestions</Typography>
-                          <Typography sx={{ fontSize: "0.75rem", color: "#6b7280" }}>If unchecked, only preferred collaborator will receive this request</Typography>
+                          <Typography sx={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--text-dark)" }}>Open to Suggestions</Typography>
+                          <Typography sx={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>If unchecked, only preferred collaborator will receive this request</Typography>
                         </Box>
                       </Box>
                     </Box>
@@ -483,7 +486,7 @@ export default function ProjectPage() {
                       </Typography>
                       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2.5 }}>
                         <Box>
-                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "#374151", mb: 0.8 }}>
+                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-dark)", mb: 0.8 }}>
                             Priority Level
                           </Typography>
                           <TextField fullWidth select value={form.priorityLevel} onChange={handleInputChange("priorityLevel")}
@@ -496,7 +499,7 @@ export default function ProjectPage() {
                         </Box>
 
                         <Box>
-                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "#374151", mb: 0.8 }}>
+                          <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-dark)", mb: 0.8 }}>
                             Requirements Doc (URL)
                           </Typography>
                           <TextField fullWidth placeholder="Link to detailed requirements or RFP document" value={form.attachmentUrl} onChange={handleInputChange("attachmentUrl")}
@@ -507,8 +510,8 @@ export default function ProjectPage() {
                   </Box>
 
                 {/* Modal Footer */}
-                <Box sx={{ p: 2.5, backgroundColor: "#f9fafb", borderTop: "1px solid #e5e7eb", display: "flex", gap: 2, justifyContent: "flex-end" }}>
-                  <Button onClick={handleCloseModal} sx={{ px: 3, py: 1, color: "#6b7280", fontWeight: 700, textTransform: "none" }}>Cancel</Button>
+                <Box sx={{ p: 2.5, backgroundColor: themeColors.isDarkMode ? "rgba(30, 41, 59, 0.5)" : "#f9fafb", borderTop: "1px solid var(--border-color)", display: "flex", gap: 2, justifyContent: "flex-end" }}>
+                  <Button onClick={handleCloseModal} sx={{ px: 3, py: 1, color: "var(--text-muted)", fontWeight: 700, textTransform: "none" }}>Cancel</Button>
                   <Button onClick={handleSubmit} variant="contained" disabled={!form.title || !form.category || !form.budgetMin || !form.budgetMax || !form.deadline}
                     sx={{ px: 4, py: 1, backgroundColor: PRIMARY, "&:hover": { backgroundColor: "#e67e00" }, fontWeight: 700, textTransform: "none", boxShadow: "none", borderRadius: 2 }}>
                     Submit Project Request
@@ -534,7 +537,7 @@ export default function ProjectPage() {
   );
 }
 
-function ProjectDatasetCard({ dataset, onOpen, onVote }) {
+function ProjectDatasetCard({ dataset, onOpen, onVote, themeColors, PRIMARY }) {
   const sc = statusColors[dataset.status] || statusColors.Active;
 
   return (
@@ -545,7 +548,7 @@ function ProjectDatasetCard({ dataset, onOpen, onVote }) {
           <Typography sx={{ fontSize: "0.7rem", fontWeight: 700, color: sc.color }}>{dataset.status}</Typography>
         </Box>
         <Box sx={{ position: "absolute", bottom: 8, left: 8 }}>
-          <AvatarGroup max={3} sx={{ "& .MuiAvatar-root": { width: 24, height: 24, fontSize: "0.65rem", border: "2px solid #fff" } }}>
+          <AvatarGroup max={3} sx={{ "& .MuiAvatar-root": { width: 24, height: 24, fontSize: "0.65rem", border: `2px solid var(--card-bg)` } }}>
             {dataset.avatars.map((a, i) => <Avatar key={i} src={a} />)}
           </AvatarGroup>
         </Box>

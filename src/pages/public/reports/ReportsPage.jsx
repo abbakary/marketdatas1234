@@ -15,8 +15,7 @@ import {
   ResponsiveContainer, Legend, AreaChart, Area,
 } from "recharts";
 import PageLayout from "../components/PageLayout";
-
-const PRIMARY = "#61C5C3";
+import { useThemeColors } from "../../../utils/useThemeColors";
 
 const reportTrendsData = [
   { month: "Jan", reports: 45, citations: 120 },
@@ -36,7 +35,6 @@ const categoryDistribution = [
 ];
 
 const COLORS = ["#61C5C3", "#4fb3b1", "#3d9e9c", "#2b8987", "#1a7472"];
-const chartTooltipStyle = { backgroundColor: "rgba(255, 255, 255, 0.95)", border: "1px solid #e5e7eb", borderRadius: 8, boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)" };
 
 
 const reportDatasets = [
@@ -59,6 +57,8 @@ const reportTypes = ["All", "Annual", "Quarterly", "Semi-Annual", "Monthly", "Sp
 
 export default function ReportsPage() {
   const navigate = useNavigate();
+  const themeColors = useThemeColors();
+  const PRIMARY = themeColors.teal;
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState(0);
   const [selectedType, setSelectedType] = useState("All");
@@ -66,6 +66,14 @@ export default function ReportsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState({ title: "", description: "", deadline: "", budget: "", priority: "Medium" });
   const [submitted, setSubmitted] = useState(false);
+
+  const chartTooltipStyle = {
+    backgroundColor: themeColors.isDarkMode ? "rgba(30, 41, 59, 0.95)" : "rgba(255, 255, 255, 0.95)",
+    border: `1px solid var(--border-color)`,
+    borderRadius: 8,
+    boxShadow: themeColors.isDarkMode ? "0 4px 6px -1px rgba(0, 0, 0, 0.3)" : "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+    color: themeColors.text,
+  };
 
   const sortedAndFiltered = useMemo(() => {
     let result = reportDatasets.filter(d => {
@@ -124,7 +132,7 @@ export default function ReportsPage() {
           {/* Stats */}
           <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr 1fr", md: "repeat(4,1fr)" }, gap: 2, mb: 4 }}>
             {reportStats.map(s => (
-              <Card key={s.label} sx={{ borderRadius: 2, border: "1px solid #e5e7eb", boxShadow: "none" }}>
+              <Card key={s.label} sx={{ borderRadius: 2, border: "1px solid var(--border-color)", boxShadow: "none" }}>
                 <CardContent sx={{ p: 2.5 }}>
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <Box>
@@ -135,7 +143,7 @@ export default function ReportsPage() {
                         <Typography sx={{ fontSize: "0.78rem", color: "#16a34a", fontWeight: 600 }}>{s.change}</Typography>
                       </Box>
                     </Box>
-                    <Box sx={{ p: 1.2, borderRadius: 2, backgroundColor: "#e6f7f6" }}>{s.icon}</Box>
+                    <Box sx={{ p: 1.2, borderRadius: 2, backgroundColor: "rgba(97, 197, 195, 0.1)" }}>{s.icon}</Box>
                   </Box>
                 </CardContent>
               </Card>
@@ -144,7 +152,7 @@ export default function ReportsPage() {
 
           {/* Charts Section */}
           <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "2fr 1fr" }, gap: 3, mb: 4 }}>
-            <Card sx={{ borderRadius: 3, border: "1px solid #e5e7eb", boxShadow: "none" }}>
+            <Card sx={{ borderRadius: 3, border: "1px solid var(--border-color)", boxShadow: "none" }}>
               <CardContent sx={{ p: 3 }}>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
                   <Typography sx={{ fontWeight: 800, color: "var(--text-dark)" }}>Report & Citation Trends</Typography>
@@ -159,19 +167,19 @@ export default function ReportsPage() {
                           <stop offset="95%" stopColor={PRIMARY} stopOpacity={0}/>
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                      <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6b7280" }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6b7280" }} />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={themeColors.border} />
+                      <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: themeColors.textMuted }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: themeColors.textMuted }} />
                       <Tooltip contentStyle={chartTooltipStyle} />
                       <Area type="monotone" dataKey="reports" stroke={PRIMARY} strokeWidth={3} fillOpacity={1} fill="url(#colorReports)" />
-                      <Area type="monotone" dataKey="citations" stroke="#374151" strokeWidth={2} fillOpacity={0} />
+                      <Area type="monotone" dataKey="citations" stroke={themeColors.text} strokeWidth={2} fillOpacity={0} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </Box>
               </CardContent>
             </Card>
 
-            <Card sx={{ borderRadius: 3, border: "1px solid #e5e7eb", boxShadow: "none" }}>
+            <Card sx={{ borderRadius: 3, border: "1px solid var(--border-color)", boxShadow: "none" }}>
               <CardContent sx={{ p: 3 }}>
                 <Typography sx={{ fontWeight: 800, color: "var(--text-dark)", mb: 3 }}>Report Categories</Typography>
                 <Box sx={{ height: 280, width: "100%", minHeight: 280 }}>
@@ -191,8 +199,8 @@ export default function ReportsPage() {
 
           {/* Search */}
           <TextField fullWidth placeholder="Search reports, authors, topics..." value={search} onChange={e => setSearch(e.target.value)} variant="outlined"
-            sx={{ mb: 3, backgroundColor: "#fff", borderRadius: "10px", "& .MuiOutlinedInput-root": { borderRadius: "10px", height: 50 } }}
-            InputProps={{ startAdornment: <InputAdornment position="start"><Search size={20} color="#6b7280" /></InputAdornment> }}
+            sx={{ mb: 3, backgroundColor: "var(--card-bg)", borderRadius: "10px", "& .MuiOutlinedInput-root": { borderRadius: "10px", height: 50 } }}
+            InputProps={{ startAdornment: <InputAdornment position="start"><Search size={20} color={themeColors.textMuted} /></InputAdornment> }}
           />
 
 
@@ -200,14 +208,14 @@ export default function ReportsPage() {
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 3 }}>
             {reportTypes.map(t => (
               <Chip key={t} label={t} onClick={() => setSelectedType(t)} variant={selectedType === t ? "filled" : "outlined"}
-                sx={{ borderRadius: "6px", fontSize: "0.82rem", backgroundColor: selectedType === t ? PRIMARY : "#fff", color: selectedType === t ? "#fff" : "#374151", borderColor: "#d1d5db", "&:hover": { backgroundColor: selectedType === t ? PRIMARY : "#e6f7f6" } }}
+                sx={{ borderRadius: "6px", fontSize: "0.82rem", backgroundColor: selectedType === t ? PRIMARY : "var(--card-bg)", color: selectedType === t ? "#fff" : "var(--text-dark)", borderColor: "var(--border-color)", "&:hover": { backgroundColor: selectedType === t ? PRIMARY : themeColors.hoverBg } }}
               />
             ))}
           </Box>
 
           {/* Tabs */}
-          <Box sx={{ borderBottom: "1px solid #e5e7eb", mb: 3 }}>
-            <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ "& .MuiTab-root": { textTransform: "none", fontWeight: 600, fontSize: "0.9rem" }, "& .MuiTabs-indicator": { backgroundColor: PRIMARY } }}>
+          <Box sx={{ borderBottom: "1px solid var(--border-color)", mb: 3 }}>
+            <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ "& .MuiTab-root": { textTransform: "none", fontWeight: 600, fontSize: "0.9rem", color: "var(--text-muted)" }, "& .MuiTabs-indicator": { backgroundColor: PRIMARY } }}>
               <Tab label="All Reports" />
               <Tab label="Most Cited" />
               <Tab label="Most Viewed" />
@@ -221,13 +229,15 @@ export default function ReportsPage() {
               <ReportDatasetCard key={d.id} dataset={d} isBookmarked={bookmarked.includes(d.id)}
                 onBookmark={() => toggleBookmark(d.id)}
                 onOpen={() => navigate(`/dataset-info/${d.id}`, { state: { dataset: d } })}
+                themeColors={themeColors}
+                PRIMARY={PRIMARY}
               />
             ))}
           </Box>
 
           {sortedAndFiltered.length === 0 && (
             <Box sx={{ textAlign: "center", py: 8 }}>
-              <FileText size={48} color="#d1d5db" style={{ margin: "0 auto 16px" }} />
+              <FileText size={48} color={themeColors.border} style={{ margin: "0 auto 16px" }} />
               <Typography sx={{ color: "var(--text-muted)" }}>No reports found</Typography>
             </Box>
           )}
@@ -237,12 +247,12 @@ export default function ReportsPage() {
             <Fade in={isModalOpen}>
               <Box sx={{
                 position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-                width: { xs: "90%", sm: 550 }, bgcolor: "background.paper", borderRadius: 3,
+                width: { xs: "90%", sm: 550 }, bgcolor: "var(--card-bg)", borderRadius: 3,
                 boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)", p: 0, overflow: "hidden", outline: "none"
               }}>
-                <Box sx={{ px: 3, py: 2.5, backgroundColor: "#f9fafb", borderBottom: "1px solid #e5e7eb", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box sx={{ px: 3, py: 2.5, backgroundColor: themeColors.isDarkMode ? "rgba(30, 41, 59, 0.5)" : "#f9fafb", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                    <Box sx={{ p: 1, backgroundColor: "#e6f7f6", borderRadius: 1.5, display: "flex" }}><FilePlus size={20} color={PRIMARY} /></Box>
+                    <Box sx={{ p: 1, backgroundColor: "rgba(97, 197, 195, 0.1)", borderRadius: 1.5, display: "flex" }}><FilePlus size={20} color={PRIMARY} /></Box>
                     <Box>
                       <Typography sx={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-dark)" }}>Request Custom Report</Typography>
                       <Typography sx={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Tell us what research you need</Typography>
@@ -254,7 +264,7 @@ export default function ReportsPage() {
                 <Box sx={{ p: 3 }}>
                   {submitted ? (
                     <Box sx={{ py: 4, textAlign: "center" }}>
-                      <Box sx={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+                      <Box sx={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: "rgba(22, 163, 74, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
                         <Send size={32} color="#16a34a" />
                       </Box>
                       <Typography sx={{ fontWeight: 800, mb: 1 }}>Request Sent Successfully!</Typography>
@@ -290,12 +300,12 @@ export default function ReportsPage() {
   );
 }
 
-function ReportDatasetCard({ dataset, isBookmarked, onBookmark, onOpen }) {
+function ReportDatasetCard({ dataset, isBookmarked, onBookmark, onOpen, themeColors, PRIMARY }) {
   const typeColors = { Annual: "#3b82f6", Quarterly: "#22c55e", "Semi-Annual": "#8b5cf6", Monthly: "#f59e0b" };
   const typeColor = typeColors[dataset.reportType] || PRIMARY;
 
   return (
-    <Card sx={{ borderRadius: "12px", overflow: "hidden", border: "1px solid #e5e7eb", boxShadow: "none", transition: "all 0.3s ease", cursor: "pointer", "&:hover": { transform: "translateY(-4px)", boxShadow: "0 10px 24px rgba(97,197,195,0.12)", borderColor: PRIMARY } }} onClick={onOpen}>
+    <Card sx={{ borderRadius: "12px", overflow: "hidden", border: "1px solid var(--border-color)", boxShadow: "none", transition: "all 0.3s ease", cursor: "pointer", "&:hover": { transform: "translateY(-4px)", boxShadow: "0 10px 24px rgba(97,197,195,0.12)", borderColor: PRIMARY } }} onClick={onOpen}>
       {/* Image */}
       <Box sx={{ height: 160, backgroundImage: `url(${dataset.image})`, backgroundSize: "cover", backgroundPosition: "center", position: "relative" }}>
         <Box sx={{ position: "absolute", top: 8, left: 8, px: 1, py: 0.3, borderRadius: 1, backgroundColor: typeColor }}>
@@ -316,29 +326,29 @@ function ReportDatasetCard({ dataset, isBookmarked, onBookmark, onOpen }) {
       <CardContent sx={{ p: 2.5 }}>
         {/* Author */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
-          <Avatar sx={{ width: 22, height: 22, fontSize: "0.65rem", backgroundColor: "#f3f4f6", color: "#374151", border: "1px solid #e5e7eb" }}>{dataset.authorAvatar}</Avatar>
+          <Avatar sx={{ width: 22, height: 22, fontSize: "0.65rem", backgroundColor: themeColors.hoverBg, color: "var(--text-dark)", border: "1px solid var(--border-color)" }}>{dataset.authorAvatar}</Avatar>
           <Typography sx={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-muted)" }}>{dataset.author}</Typography>
         </Box>
 
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 1, mb: 1 }}>
           <Typography sx={{ fontSize: "0.95rem", fontWeight: 800, color: "var(--text-dark)", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{dataset.title}</Typography>
-          <IconButton size="small" sx={{ p: 0.5 }}><MoreVertical size={16} color="#9ca3af" /></IconButton>
+          <IconButton size="small" sx={{ p: 0.5 }}><MoreVertical size={16} color={themeColors.textMuted} /></IconButton>
         </Box>
 
-        <Typography sx={{ fontSize: "0.82rem", color: "#4b5563", mb: 2, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", lineHeight: 1.5 }}>{dataset.abstract}</Typography>
+        <Typography sx={{ fontSize: "0.82rem", color: "var(--text-muted)", mb: 2, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", lineHeight: 1.5 }}>{dataset.abstract}</Typography>
 
         {/* Stats Row */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, p: 1.5, backgroundColor: "#f9fafb", borderRadius: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, p: 1.5, backgroundColor: themeColors.hoverBg, borderRadius: 2 }}>
           <Box sx={{ textAlign: "center" }}>
             <Typography sx={{ fontSize: "0.85rem", fontWeight: 800, color: "var(--text-dark)" }}>{dataset.citations}</Typography>
             <Typography sx={{ fontSize: "0.65rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Citations</Typography>
           </Box>
-          <Box sx={{ width: 1, height: 20, backgroundColor: "#e5e7eb" }} />
+          <Box sx={{ width: 1, height: 20, backgroundColor: themeColors.border }} />
           <Box sx={{ textAlign: "center" }}>
             <Typography sx={{ fontSize: "0.85rem", fontWeight: 800, color: "var(--text-dark)" }}>{dataset.views >= 1000 ? (dataset.views/1000).toFixed(1) + "k" : dataset.views}</Typography>
             <Typography sx={{ fontSize: "0.65rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Views</Typography>
           </Box>
-          <Box sx={{ width: 1, height: 20, backgroundColor: "#e5e7eb" }} />
+          <Box sx={{ width: 1, height: 20, backgroundColor: themeColors.border }} />
           <Box sx={{ textAlign: "center" }}>
             <Typography sx={{ fontSize: "0.85rem", fontWeight: 800, color: "#16a34a" }}>{dataset.usability}</Typography>
             <Typography sx={{ fontSize: "0.65rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Score</Typography>

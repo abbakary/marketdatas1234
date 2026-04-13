@@ -11,8 +11,7 @@ import {
 } from "lucide-react";
 import PageLayout from "../components/PageLayout";
 import { categoriesData } from "../components/CategorySidebar";
-
-const PRIMARY = "#61C5C3";
+import { useThemeColors } from "../../../utils/useThemeColors";
 
 const analysisDatasets = [
   { id: 1, title: "Global Climate Trend Analysis 2024", author: "ClimateResearch Lab", category: "Agriculture and Environment", usability: "10.0", updated: "Updated 1 day ago", files: "5 Files (CSV)", size: "3.2 GB", downloads: "2,841 downloads", votes: 72, image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=80", price: "349.00", trend: "+18%", trendUp: true, views: 9420, rating: 4.9, description: "Comprehensive climate trend analysis with predictive models and historical comparisons." },
@@ -44,6 +43,8 @@ export default function AnalysisPage() {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const themeColors = useThemeColors();
+  const PRIMARY = themeColors.teal;
 
   const categories = ["All", ...categoriesData.map(c => c.name)];
 
@@ -119,7 +120,7 @@ export default function AnalysisPage() {
                         <Typography sx={{ fontSize: "0.8rem", color: "#16a34a", fontWeight: 600 }}>+{cat.growth}%</Typography>
                       </Box>
                     </Box>
-                    <LinearProgress variant="determinate" value={(cat.datasets / 84) * 100} sx={{ height: 6, borderRadius: 3, backgroundColor: "var(--border-color)", "& .MuiLinearProgress-bar": { backgroundColor: cat.color, borderRadius: 3 } }} />
+                    <LinearProgress variant="determinate" value={(cat.datasets / 84) * 100} sx={{ height: 6, borderRadius: 3, backgroundColor: themeColors.border, "& .MuiLinearProgress-bar": { backgroundColor: cat.color, borderRadius: 3 } }} />
                     <Typography sx={{ fontSize: "0.75rem", color: "var(--text-muted)", mt: 0.8, transition: "color 0.3s ease" }}>{cat.datasets} datasets</Typography>
                   </Box>
                 ))}
@@ -150,13 +151,13 @@ export default function AnalysisPage() {
           {/* Dataset Cards Grid */}
           <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2,1fr)", lg: "repeat(3,1fr)" }, gap: 3 }}>
             {filtered.map(d => (
-              <AnalysisDatasetCard key={d.id} dataset={d} onOpen={() => navigate(`/dataset-info/${d.id}`, { state: { dataset: d } })} />
+              <AnalysisDatasetCard key={d.id} dataset={d} onOpen={() => navigate(`/dataset-info/${d.id}`, { state: { dataset: d } })} themeColors={themeColors} PRIMARY={PRIMARY} />
             ))}
           </Box>
 
           {filtered.length === 0 && (
             <Box sx={{ textAlign: "center", py: 8 }}>
-              <BarChart3 size={48} color="#d1d5db" style={{ margin: "0 auto 16px" }} />
+              <BarChart3 size={48} color={themeColors.border} style={{ margin: "0 auto 16px" }} />
               <Typography sx={{ color: "var(--text-muted)" }}>No analysis datasets found</Typography>
             </Box>
           )}
@@ -166,7 +167,7 @@ export default function AnalysisPage() {
   );
 }
 
-function AnalysisDatasetCard({ dataset, onOpen }) {
+function AnalysisDatasetCard({ dataset, onOpen, themeColors, PRIMARY }) {
   return (
     <Card sx={{ borderRadius: "12px", overflow: "hidden", border: "1px solid var(--border-color)", boxShadow: "none", transition: "all 0.3s ease", cursor: "pointer", "&:hover": { transform: "translateY(-4px)", boxShadow: "0 10px 24px rgba(97,197,195,0.12)", borderColor: PRIMARY } }} onClick={onOpen}>
       {/* Image */}
@@ -191,7 +192,7 @@ function AnalysisDatasetCard({ dataset, onOpen }) {
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.8, mb: 1.5, fontSize: "0.78rem", color: "var(--text-muted)" }}>
           <Typography sx={{ fontSize: "inherit" }}>Usability <b style={{ color: "var(--text-dark)" }}>{dataset.usability}</b></Typography>
-          <Box sx={{ width: 3, height: 3, borderRadius: "50%", backgroundColor: "#d1d5db" }} />
+          <Box sx={{ width: 3, height: 3, borderRadius: "50%", backgroundColor: themeColors.border }} />
           <Calendar size={12} />
           <Typography sx={{ fontSize: "inherit" }}>{dataset.updated}</Typography>
         </Box>
@@ -203,7 +204,7 @@ function AnalysisDatasetCard({ dataset, onOpen }) {
         </Box>
 
         {/* File Details */}
-        <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 0.8, mb: 2, pb: 2, borderBottom: "1px solid #e5e7eb" }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 0.8, mb: 2, pb: 2, borderBottom: "1px solid var(--border-color)" }}>
           {[{ icon: <FileIcon size={13} color={PRIMARY} />, label: dataset.files }, { icon: <HardDrive size={13} color={PRIMARY} />, label: dataset.size }, { icon: <Download size={13} color={PRIMARY} />, label: dataset.downloads }].map((item, i) => (
             <Box key={i} sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.4, p: 0.8, borderRadius: 1.5, backgroundColor: "var(--bg-secondary)" }}>
               {item.icon}
@@ -214,8 +215,8 @@ function AnalysisDatasetCard({ dataset, onOpen }) {
 
         {/* Footer */}
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Box sx={{ display: "flex", alignItems: "center", border: "1px solid #d1d5db", borderRadius: "6px", overflow: "hidden" }}>
-            <Box sx={{ px: 1, py: 0.4, borderRight: "1px solid #d1d5db", display: "flex", alignItems: "center" }}><ChevronUp size={13} /></Box>
+          <Box sx={{ display: "flex", alignItems: "center", border: "1px solid var(--border-color)", borderRadius: "6px", overflow: "hidden" }}>
+            <Box sx={{ px: 1, py: 0.4, borderRight: "1px solid var(--border-color)", display: "flex", alignItems: "center" }}><ChevronUp size={13} /></Box>
             <Box sx={{ px: 1.2, py: 0.3 }}><Typography sx={{ fontSize: "0.78rem", fontWeight: 700 }}>{dataset.votes}</Typography></Box>
           </Box>
           <Box sx={{ px: 1.5, py: 0.6, backgroundColor: "rgba(32, 178, 170, 0.1)", borderRadius: "6px" }}>
