@@ -14,9 +14,6 @@ import {
   TextField,
   Typography,
   List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
   Chip,
   Accordion,
   AccordionSummary,
@@ -567,34 +564,26 @@ export default function DatasetInfo() {
                   <List sx={{ width: '100%', bgcolor: 'background.paper', borderRadius: 2, border: '1px solid #e5e7eb' }}>
                     {mockDiscussions.map((msg, idx) => (
                       <Box key={msg.id}>
-                        <ListItem alignItems="flex-start" sx={{ py: 2.5 }}>
-                          <ListItemAvatar>
-                            <Avatar src={msg.avatar} sx={{ width: 44, height: 44 }} />
-                          </ListItemAvatar>
-                          <ListItemText
-                            primary={
-                              <Stack direction="row" justifyContent="space-between">
-                                <Typography sx={{ fontSize: '0.95rem', fontWeight: 800, color: '#111827' }}>{msg.user}</Typography>
-                                <Typography sx={{ fontSize: '0.8rem', color: '#6b7280' }}>{msg.timestamp}</Typography>
+                        <Box sx={{ display: 'flex', gap: 2, p: 2.5, alignItems: 'flex-start' }}>
+                          <Avatar src={msg.avatar} sx={{ width: 44, height: 44, flexShrink: 0 }} />
+                          <Box sx={{ flex: 1 }}>
+                            <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }}>
+                              <Typography sx={{ fontSize: '0.95rem', fontWeight: 800, color: '#111827' }}>{msg.user}</Typography>
+                              <Typography sx={{ fontSize: '0.8rem', color: '#6b7280' }}>{msg.timestamp}</Typography>
+                            </Stack>
+                            <Typography sx={{ ...bodySx, mt: 1, mb: 2 }}>{msg.content}</Typography>
+                            <Stack direction="row" spacing={3}>
+                              <Stack direction="row" spacing={0.5} alignItems="center" sx={{ cursor: 'pointer', color: '#4b5563', '&:hover': { color: PRIMARY_COLOR } }}>
+                                <ThumbsUp size={16} />
+                                <Typography sx={{ fontSize: '0.85rem', fontWeight: 600 }}>{msg.upvotes}</Typography>
                               </Stack>
-                            }
-                            secondary={
-                              <>
-                                <Typography sx={{ ...bodySx, mt: 1, mb: 2 }}>{msg.content}</Typography>
-                                <Stack direction="row" spacing={3}>
-                                  <Stack direction="row" spacing={0.5} alignItems="center" sx={{ cursor: 'pointer', color: '#4b5563', '&:hover': { color: PRIMARY_COLOR } }}>
-                                    <ThumbsUp size={16} />
-                                    <Typography sx={{ fontSize: '0.85rem', fontWeight: 600 }}>{msg.upvotes}</Typography>
-                                  </Stack>
-                                  <Stack direction="row" spacing={0.5} alignItems="center" sx={{ cursor: 'pointer', color: '#4b5563', '&:hover': { color: PRIMARY_COLOR } }}>
-                                    <MessageCircle size={16} />
-                                    <Typography sx={{ fontSize: '0.85rem', fontWeight: 600 }}>{msg.replies} Replies</Typography>
-                                  </Stack>
-                                </Stack>
-                              </>
-                            }
-                          />
-                        </ListItem>
+                              <Stack direction="row" spacing={0.5} alignItems="center" sx={{ cursor: 'pointer', color: '#4b5563', '&:hover': { color: PRIMARY_COLOR } }}>
+                                <MessageCircle size={16} />
+                                <Typography sx={{ fontSize: '0.85rem', fontWeight: 600 }}>{msg.replies} Replies</Typography>
+                              </Stack>
+                            </Stack>
+                          </Box>
+                        </Box>
                         {idx < mockDiscussions.length - 1 && <Divider variant="inset" component="li" />}
                       </Box>
                     ))}
