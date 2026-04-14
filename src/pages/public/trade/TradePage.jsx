@@ -42,6 +42,8 @@ export default function TradePage() {
   const [search, setSearch] = useState("");
   const [viewType, setViewType] = useState("grid");
   const [sortBy, setSortBy] = useState("trending");
+  const [selectedRegion, setSelectedRegion] = useState("All Regions");
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [loadedCount, setLoadedCount] = useState(12);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -110,9 +112,19 @@ export default function TradePage() {
       "Asia Pacific",
       "Europe",
       "North America",
-      "Middle East",
+      "Middle East & Africa",
       "Latin America",
-      "Africa",
+      "Middle East & Africa",
+    ];
+
+    const categories = [
+      "Export Markets",
+      "Import Data",
+      "Trade Compliance",
+      "Market Analysis",
+      "Trade Statistics",
+      "Commerce Trends",
+      "Export Markets",
     ];
 
     const images = [
@@ -150,6 +162,7 @@ export default function TradePage() {
         volume: `$${(id * 15000) % 500000 + 50000}M`,
         votes: (id * 3) % 150 + 10,
         image,
+        category: categories[(id - 1) % categories.length],
         price: ((id * 29) % 999 + 100).toFixed(2),
         trend: `+${(id % 25) + 5}%`,
         trendUp: true,
@@ -168,7 +181,7 @@ export default function TradePage() {
 
   useEffect(() => {
     setLoadedCount(itemsPerLoad);
-  }, [search, sortBy]);
+  }, [search, sortBy, selectedRegion, selectedCategory]);
 
   const handleLoadMore = () => {
     setLoadedCount((prev) => prev + itemsPerLoad);
@@ -180,7 +193,9 @@ export default function TradePage() {
         trade.title.toLowerCase().includes(search.toLowerCase()) ||
         trade.author.toLowerCase().includes(search.toLowerCase()) ||
         trade.region.toLowerCase().includes(search.toLowerCase());
-      return matchesSearch;
+      const matchesRegion = selectedRegion === "All Regions" || trade.region === selectedRegion;
+      const matchesCategory = selectedCategory === "All Categories" || trade.category === selectedCategory;
+      return matchesSearch && matchesRegion && matchesCategory;
     })
     .sort((a, b) => {
       switch (sortBy) {
@@ -322,26 +337,29 @@ export default function TradePage() {
             >
               {/* Region Chips */}
               <Box sx={{ display: "flex", gap: 0.8, flexWrap: "wrap" }}>
-                {tradeRegions.map((region) => (
-                  <Chip
-                    key={region}
-                    label={region}
-                    variant="outlined"
-                    sx={{
-                      borderRadius: "6px",
-                      fontSize: "0.85rem",
-                      height: 32,
-                      px: 1.5,
-                      backgroundColor: "var(--bg-white)",
-                      color: "var(--text-dark)",
-                      borderColor: "var(--border-color)",
-                      fontWeight: 500,
-                      "&:hover": {
-                        backgroundColor: "var(--hover-bg)",
-                      },
-                    }}
-                  />
-                ))}
+                {tradeRegions.map((region) => {
+                  const active = selectedRegion === region;
+                  return (
+                    <Chip
+                      key={region}
+                      label={region}
+                      onClick={() => setSelectedRegion(region)}
+                      variant="outlined"
+                      sx={{
+                        borderRadius: "6px",
+                        fontSize: "0.85rem",
+                        height: 32,
+                        px: 1.5,
+                        cursor: "pointer",
+                        backgroundColor: active ? `${PRIMARY_COLOR}15` : "var(--bg-white)",
+                        color: active ? PRIMARY_COLOR : "var(--text-dark)",
+                        borderColor: active ? PRIMARY_COLOR : "var(--border-color)",
+                        fontWeight: active ? 700 : 500,
+                        "&:hover": { backgroundColor: active ? `${PRIMARY_COLOR}20` : "var(--hover-bg)" },
+                      }}
+                    />
+                  );
+                })}
               </Box>
             </Box>
 
@@ -354,26 +372,29 @@ export default function TradePage() {
                 mb: 4,
               }}
             >
-              {tradeCategories.map((category) => (
-                <Chip
-                  key={category}
-                  label={category}
-                  variant="outlined"
-                  sx={{
-                    borderRadius: "6px",
-                    fontSize: "0.82rem",
-                    height: 30,
-                    px: 1.5,
-                    backgroundColor: "var(--bg-white)",
-                    color: "var(--text-muted)",
-                    borderColor: "var(--border-color)",
-                    fontWeight: 500,
-                    "&:hover": {
-                      backgroundColor: "var(--hover-bg)",
-                    },
-                  }}
-                />
-              ))}
+              {tradeCategories.map((category) => {
+                const active = selectedCategory === category;
+                return (
+                  <Chip
+                    key={category}
+                    label={category}
+                    onClick={() => setSelectedCategory(category)}
+                    variant="outlined"
+                    sx={{
+                      borderRadius: "6px",
+                      fontSize: "0.82rem",
+                      height: 30,
+                      px: 1.5,
+                      cursor: "pointer",
+                      backgroundColor: active ? `${PRIMARY_COLOR}15` : "var(--bg-white)",
+                      color: active ? PRIMARY_COLOR : "var(--text-muted)",
+                      borderColor: active ? PRIMARY_COLOR : "var(--border-color)",
+                      fontWeight: active ? 700 : 500,
+                      "&:hover": { backgroundColor: active ? `${PRIMARY_COLOR}20` : "var(--hover-bg)" },
+                    }}
+                  />
+                );
+              })}
             </Box>
 
             {/* Controls */}
@@ -628,6 +649,7 @@ export default function TradePage() {
 
 function TradeCard({ trade, viewType = "grid" }) {
   const navigate = useNavigate();
+  const { teal: PRIMARY_COLOR } = useThemeColors();
 
   const handleOpenTrade = () => {
     navigate(`/dataset-info/${trade.id}`, {
