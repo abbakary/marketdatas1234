@@ -219,33 +219,60 @@ export default function DashboardLayout({ children, role }) {
 
       {/* Sidebar - Right Side */}
       <aside style={{
-        position: 'fixed', top: 0, right: 0, zIndex: 50, height: '100%', width: 280,
-        background: themeColors.isDarkMode ? `linear-gradient(180deg, #1E293B 0%, #0F172A 100%)` : currentRoleStyle.gradient,
+        position: 'fixed',
+        top: 0,
+        right: 0,
+        zIndex: 50,
+        height: '100%',
+        width: 280,
+        background: themeColors.isDarkMode
+          ? 'linear-gradient(180deg, #1E293B 0%, #0F172A 100%)'
+          : currentRoleStyle.gradient,
         borderLeft: `1px solid ${colors.sidebarBorder}`,
         transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)',
         transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease',
-        display: 'flex', flexDirection: 'column',
-        boxShadow: themeColors.isDarkMode ? '-10px 0 30px rgba(0,0,0,0.3)' : `-10px 0 40px ${currentRoleStyle.primary}25`,
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: themeColors.isDarkMode
+          ? '-10px 0 30px rgba(0,0,0,0.3)'
+          : `-10px 0 40px ${currentRoleStyle.primary}40`,
         overflow: 'hidden',
       }}
         className="lg-sidebar"
       >
-        {/* Decorative elements */}
+        {/* Decorative circle elements */}
         <div style={{
-          position: 'absolute', top: -40, right: -40, width: 150, height: 150,
-          borderRadius: '50%', background: 'rgba(255, 255, 255, 0.08)',
+          position: 'absolute',
+          top: -40,
+          right: -40,
+          width: 150,
+          height: 150,
+          borderRadius: '50%',
+          background: 'rgba(255, 255, 255, 0.08)',
           pointerEvents: 'none',
         }} />
         <div style={{
-          position: 'absolute', bottom: 100, left: -50, width: 120, height: 120,
-          borderRadius: '50%', background: 'rgba(255, 255, 255, 0.05)',
+          position: 'absolute',
+          bottom: 100,
+          left: -50,
+          width: 120,
+          height: 120,
+          borderRadius: '50%',
+          background: 'rgba(255, 255, 255, 0.05)',
           pointerEvents: 'none',
         }} />
         <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 72,
-          padding: '0 20px', borderBottom: `1px solid rgba(255, 255, 255, 0.1)`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          height: 72,
+          padding: '0 20px',
+          borderBottom: `1px solid rgba(255, 255, 255, 0.1)`,
           backgroundColor: themeColors.isDarkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.08)',
-          backdropFilter: 'blur(10px)', transition: 'all 0.3s ease', position: 'relative', zIndex: 10
+          backdropFilter: 'blur(10px)',
+          transition: 'all 0.3s ease',
+          position: 'relative',
+          zIndex: 10,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', transition: 'transform 0.2s' }}>
@@ -290,7 +317,6 @@ export default function DashboardLayout({ children, role }) {
           {navItems.map((item, index) => {
             const isActive = location.pathname === item.href;
             const Icon = item.icon;
-            const roleColor = currentRoleStyle.primary;
 
             return (
               <Link
@@ -364,7 +390,7 @@ export default function DashboardLayout({ children, role }) {
             background: themeColors.isDarkMode
               ? 'linear-gradient(135deg, rgba(226, 232, 240, 0.1) 0%, rgba(148, 163, 184, 0.05) 100%)'
               : currentRoleStyle.lightGradient,
-            border: `1.5px solid rgba(255, 255, 255, 0.2)`,
+            border: '1.5px solid rgba(255, 255, 255, 0.2)',
             borderRadius: 12,
             padding: 12,
             marginBottom: 12,
@@ -383,7 +409,7 @@ export default function DashboardLayout({ children, role }) {
                 fontWeight: 800,
                 fontSize: 18,
                 boxShadow: `0 8px 20px ${currentRoleStyle.primary}40`,
-                border: `2px solid rgba(255, 255, 255, 0.3)`,
+                border: '2px solid rgba(255, 255, 255, 0.3)',
                 flexShrink: 0,
               }}>
                 {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : role[0].toUpperCase()}
@@ -426,7 +452,7 @@ export default function DashboardLayout({ children, role }) {
                 width: '100%',
                 padding: '10px 12px',
                 backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                border: `1px solid rgba(255, 255, 255, 0.2)`,
+                border: '1px solid rgba(255, 255, 255, 0.2)',
                 cursor: 'pointer',
                 fontSize: 13,
                 color: themeColors.isDarkMode ? '#e2e8f0' : '#fff',
@@ -455,7 +481,7 @@ export default function DashboardLayout({ children, role }) {
                 width: '100%',
                 padding: '10px 12px',
                 backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                border: `1px solid rgba(239, 68, 68, 0.4)`,
+                border: '1px solid rgba(239, 68, 68, 0.4)',
                 cursor: 'pointer',
                 fontSize: 13,
                 color: '#fecaca',
