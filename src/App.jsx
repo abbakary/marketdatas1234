@@ -19,7 +19,7 @@ import DatasetsPage from "./pages/public/dataset/DatasetsPage.jsx";
 import DatasetInfo from "./pages/public/dataset/DatasetInfo.jsx";
 import TradePage from "./pages/public/trade/TradePage.jsx";
 
-import BudgetPage from "./pages/public/budget/BudgetPage.jsx";
+import SubscriptionPage from "./pages/public/subscription/SubscriptionPage.jsx";
 import ProjectPage from "./pages/public/project/ProjectPage.jsx";
 import FundsPage from "./pages/public/funds/FundsPage.jsx";
 import AnalysisPage from "./pages/public/analysis/AnalysisPage.jsx";
@@ -43,6 +43,8 @@ import AdminRevenueReportsPage from "./pages/dashboard/admin/RevenueReportsPage"
 import AdminRequestsPage from "./pages/dashboard/admin/RequestsPage";
 import AdminReportsPage from "./pages/dashboard/admin/ReportsPage";
 import AdminProjectsPage from "./pages/dashboard/admin/ProjectsPage";
+import AdminSubscriptionsPage from "./pages/dashboard/admin/SubscriptionsPage";
+import AdminFundRequestsPage from "./pages/dashboard/admin/FundRequestsPage";
 import SettingsPage from "./pages/dashboard/components/SettingsPage";
 
 /* ===================== Editor Sub-pages ===================== */
@@ -53,6 +55,8 @@ import EditorRevenueAnalyticsPage from "./pages/dashboard/editor/RevenueAnalytic
 import EditorRequestsPage from "./pages/dashboard/admin/RequestsPage";
 import EditorReportsPage from "./pages/dashboard/admin/ReportsPage";
 import EditorProjectsPage from "./pages/dashboard/admin/ProjectsPage";
+import EditorSubscriptionsPage from "./pages/dashboard/editor/SubscriptionsPage";
+import EditorFundRequestsPage from "./pages/dashboard/editor/FundRequestsPage";
 
 /* ===================== Buyer Sub-pages ===================== */
 import BuyerPurchasesPage from "./pages/dashboard/buyer/PurchasesPage";
@@ -95,7 +99,8 @@ function AppRoutes() {
       <Route path="/public/datasets" element={<DatasetsPage />} />
       <Route path="/dataset-info/:id" element={<DatasetInfo />} />
       <Route path="/public/trade" element={<TradePage />} />
-      <Route path="/public/budget" element={<BudgetPage />} />
+      <Route path="/public/subscription" element={<SubscriptionPage />} />
+      <Route path="/public/budget" element={<Navigate to="/public/subscription" replace />} />
       <Route path="/public/project" element={<ProjectPage />} />
       <Route path="/public/funds" element={<FundsPage />} />
       <Route path="/public/analysis" element={<AnalysisPage />} />
@@ -127,6 +132,8 @@ function AppRoutes() {
       <Route path="/dashboard/editor/requests" element={<EditorRequestsPage role="editor" />} />
       <Route path="/dashboard/editor/reports" element={<EditorReportsPage role="editor" />} />
       <Route path="/dashboard/editor/projects" element={<EditorProjectsPage role="editor" />} />
+      <Route path="/dashboard/editor/subscriptions" element={<EditorSubscriptionsPage />} />
+      <Route path="/dashboard/editor/funds" element={<EditorFundRequestsPage />} />
       <Route path="/dashboard/editor/settings" element={<SettingsPage role="editor" />} />
 
       <Route path="/dashboard/admin" element={<AdminDashboard />} />
@@ -134,6 +141,8 @@ function AppRoutes() {
       <Route path="/dashboard/admin/datasets" element={<AdminDatasetsPage />} />
       <Route path="/dashboard/admin/revenue" element={<AdminRevenueReportsPage />} />
       <Route path="/dashboard/admin/requests" element={<AdminRequestsPage />} />
+      <Route path="/dashboard/admin/subscriptions" element={<AdminSubscriptionsPage role="admin" />} />
+      <Route path="/dashboard/admin/funds" element={<AdminFundRequestsPage role="admin" />} />
       <Route path="/dashboard/admin/reports" element={<AdminReportsPage />} />
       <Route path="/dashboard/admin/projects" element={<AdminProjectsPage />} />
       <Route path="/dashboard/admin/settings" element={<SettingsPage role="admin" />} />

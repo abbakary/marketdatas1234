@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box, Container, Typography, TextField, InputAdornment, Card, CardContent,
-  Chip, Avatar, Tab, Tabs, LinearProgress,
+  Chip, Avatar, Tab, Tabs, LinearProgress, Select, MenuItem,
 } from "@mui/material";
 import {
   Search, BarChart3, TrendingUp, TrendingDown, Download, ChevronUp,
   Calendar, FileIcon, HardDrive, MoreVertical, Activity, Eye, Star,
   SlidersHorizontal, ArrowUpRight, ArrowDownRight,
+  Grid3x3, List,
 } from "lucide-react";
 import PageLayout from "../components/PageLayout";
 import { categoriesData } from "../components/CategorySidebar";
@@ -36,6 +37,8 @@ export default function AnalysisPage() {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [viewType, setViewType] = useState("grid"); // grid | list
+  const [sortBy, setSortBy] = useState("hotness");
   const themeColors = useThemeColors();
   const PRIMARY = themeColors.teal;
 
@@ -48,11 +51,52 @@ export default function AnalysisPage() {
 
   const categories = ["All", ...categoriesData.map(c => c.name)];
 
-  const filtered = analysisDatasets.filter(d => {
-    const ms = d.title.toLowerCase().includes(search.toLowerCase()) || d.author.toLowerCase().includes(search.toLowerCase());
-    const mc = selectedCategory === "All" || d.category === selectedCategory;
-    return ms && mc;
-  });
+  const sortOptions = [
+    { value: "hotness", label: "Hotness" },
+    { value: "most-downloaded", label: "Most Downloaded" },
+    { value: "most-viewed", label: "Most Viewed" },
+    { value: "top-rated", label: "Top Rated" },
+    { value: "most-voted", label: "Most Votes" },
+  ];
+
+  const filtered = useMemo(() => {
+    let rows = analysisDatasets.filter((d) => {
+      const ms =
+        d.title.toLowerCase().includes(search.toLowerCase()) ||
+        d.author.toLowerCase().includes(search.toLowerCase());
+      const mc = selectedCategory === "All" || d.category === selectedCategory;
+      return ms && mc;
+    });
+
+    // Tab-based filtering (kept simple and predictable)
+    if (tab === 1) rows = rows.filter((d) => d.trendUp);
+    if (tab === 2) rows = [...rows].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    if (tab === 3) rows = [...rows].sort((a, b) => parseInt(String(b.downloads).replace(/[^0-9]/g, "")) - parseInt(String(a.downloads).replace(/[^0-9]/g, "")));
+
+    // Sort dropdown
+    rows = [...rows].sort((a, b) => {
+      const aDownloads = parseInt(String(a.downloads).replace(/[^0-9]/g, ""));
+      const bDownloads = parseInt(String(b.downloads).replace(/[^0-9]/g, ""));
+      switch (sortBy) {
+        case "most-downloaded":
+          return bDownloads - aDownloads;
+        case "most-viewed":
+          return (b.views || 0) - (a.views || 0);
+        case "top-rated":
+          return (b.rating || 0) - (a.rating || 0);
+        case "most-voted":
+          return (b.votes || 0) - (a.votes || 0);
+        case "hotness":
+        default: {
+          const heatA = (a.votes || 0) * parseFloat(a.usability || 0) + (a.views || 0) / 1000;
+          const heatB = (b.votes || 0) * parseFloat(b.usability || 0) + (b.views || 0) / 1000;
+          return heatB - heatA;
+        }
+      }
+    });
+
+    return rows;
+  }, [search, selectedCategory, tab, sortBy]);
 
   return (
     <PageLayout>
@@ -148,8 +192,84 @@ export default function AnalysisPage() {
             </Tabs>
           </Box>
 
+          {/* Controls: sort + view (always visible) */}
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2, mb: 3, flexWrap: "wrap" }}>
+            <Select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                px: 1.5,
+                py: 0.8,
+                backgroundColor: "var(--bg-secondary)",
+                borderRadius: "8px",
+                cursor: "pointer",
+                border: `1px solid var(--border-color)`,
+                fontSize: "0.9rem",
+                fontWeight: 600,
+                color: "var(--text-dark)",
+                minWidth: 160,
+                height: 40,
+                "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                "&:hover": { backgroundColor: "var(--hover-bg)" },
+                "& .MuiSvgIcon-root": { color: "var(--text-muted)" },
+              }}
+            >
+              {sortOptions.map((o) => (
+                <MenuItem key={o.value} value={o.value}>
+                  {o.label}
+                </MenuItem>
+              ))}
+            </Select>
+
+            <Box sx={{ display: "flex", gap: 0.5, backgroundColor: "var(--bg-secondary)", borderRadius: "8px", padding: "4px", border: `1px solid var(--border-color)` }}>
+              <Box
+                onClick={() => setViewType("grid")}
+                sx={{
+                  p: 0.8,
+                  borderRadius: "6px",
+                  backgroundColor: viewType === "grid" ? "var(--card-bg)" : "transparent",
+                  border: viewType === "grid" ? `1px solid var(--border-color)` : "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  "&:hover": { backgroundColor: "var(--hover-bg)" },
+                }}
+                title="Grid View"
+              >
+                <Grid3x3 size={18} color={viewType === "grid" ? PRIMARY : "var(--text-muted)"} />
+              </Box>
+              <Box
+                onClick={() => setViewType("list")}
+                sx={{
+                  p: 0.8,
+                  borderRadius: "6px",
+                  backgroundColor: viewType === "list" ? "var(--card-bg)" : "transparent",
+                  border: viewType === "list" ? `1px solid var(--border-color)` : "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  "&:hover": { backgroundColor: "var(--hover-bg)" },
+                }}
+                title="List View"
+              >
+                <List size={18} color={viewType === "list" ? PRIMARY : "var(--text-muted)"} />
+              </Box>
+            </Box>
+          </Box>
+
           {/* Dataset Cards Grid */}
-          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2,1fr)", lg: "repeat(3,1fr)" }, gap: 3 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: viewType === "grid" ? { xs: "1fr", sm: "repeat(2,1fr)", lg: "repeat(3,1fr)" } : "1fr",
+              gap: 3,
+            }}
+          >
             {filtered.map(d => (
               <AnalysisDatasetCard key={d.id} dataset={d} onOpen={() => navigate(`/dataset-info/${d.id}`, { state: { dataset: d } })} themeColors={themeColors} PRIMARY={PRIMARY} />
             ))}

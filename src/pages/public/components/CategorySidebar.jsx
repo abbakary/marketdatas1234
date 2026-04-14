@@ -293,74 +293,87 @@ export default function CategorySidebar({ onCategorySelect, selectedCategory }) 
             overflowX: "visible",
           }}
         >
-          {categoriesData.map((category) => {
+          {categoriesData.map((category, idx) => {
             const isSelected =
               selectedCategory?.id === category.id &&
               !selectedCategory?.selectedSubcategory;
             const isHovered = hoveredCategoryId === category.id;
 
             return (
-              <Box
-                key={category.id}
-                onMouseEnter={(e) => {
-                  clearCloseTimer();
-                  setHoveredCategoryId(category.id);
-                  setHoveredItemPosition(e.currentTarget.getBoundingClientRect());
-                }}
-                onMouseLeave={queueCloseMenu}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.5,
-                  px: 2.5,
-                  py: 1.2,
-                  cursor: "pointer",
-                  backgroundColor: isSelected ? selectedBgColor : "transparent",
-                  borderLeft: isSelected
-                    ? `4px solid ${PRIMARY_COLOR}`
-                    : "4px solid transparent",
-                  transition: "all 0.2s ease",
-                  "&:hover": {
-                    backgroundColor: hoverBgColor,
-                  },
-                }}
-                onClick={() => handleSelectCategory(category)}
-              >
-                <Typography sx={{ fontSize: "1.3rem", flexShrink: 0 }}>
-                  {category.icon}
-                </Typography>
+              <Box key={category.id}>
+                <Box
+                  onMouseEnter={(e) => {
+                    clearCloseTimer();
+                    setHoveredCategoryId(category.id);
+                    setHoveredItemPosition(e.currentTarget.getBoundingClientRect());
+                  }}
+                  onMouseLeave={queueCloseMenu}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                    px: 2.5,
+                    py: 1.2,
+                    cursor: "pointer",
+                    backgroundColor: isSelected ? selectedBgColor : "transparent",
+                    borderLeft: isSelected
+                      ? `4px solid ${PRIMARY_COLOR}`
+                      : "4px solid transparent",
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      backgroundColor: hoverBgColor,
+                    },
+                  }}
+                  onClick={() => handleSelectCategory(category)}
+                >
+                  <Typography sx={{ fontSize: "1.3rem", flexShrink: 0 }}>
+                    {category.icon}
+                  </Typography>
 
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography
-                    sx={{
-                      fontSize: "0.95rem",
-                      fontWeight: 600,
-                      color: isSelected ? PRIMARY_COLOR : "var(--text-dark)",
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography
+                      sx={{
+                        fontSize: "0.95rem",
+                        fontWeight: 700,
+                        color: isSelected ? PRIMARY_COLOR : "var(--text-dark)",
+                        transition: "color 0.2s ease",
+                      }}
+                    >
+                      {category.name}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: "0.8rem",
+                        color: "var(--text-muted)",
+                        mt: 0.3,
+                        transition: "color 0.3s ease",
+                      }}
+                    >
+                      {category.datasetCount} datasets
+                    </Typography>
+                  </Box>
+
+                  <ChevronRight
+                    size={20}
+                    style={{
+                      color: isSelected ? PRIMARY_COLOR : "#9ca3af",
+                      flexShrink: 0,
                       transition: "color 0.2s ease",
                     }}
-                  >
-                    {category.name}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: "0.8rem",
-                      color: "var(--text-muted)",
-                      mt: 0.3,
-                      transition: "color 0.3s ease",
-                    }}
-                  >
-                    {category.datasetCount} datasets
-                  </Typography>
+                  />
                 </Box>
 
-                <ChevronRight
-                  size={20}
-                  style={{
-                    color: isSelected ? PRIMARY_COLOR : "#9ca3af",
-                    flexShrink: 0,
-                    transition: "color 0.2s ease",
-                  }}
-                />
+                {idx < categoriesData.length - 1 && (
+                  <Box
+                    sx={{
+                      mx: 2.5,
+                      borderBottom: themeColors.isDarkMode
+                        ? `1px solid rgba(97, 197, 195, 0.22)`
+                        : `1px solid rgba(97, 197, 195, 0.35)`,
+                      opacity: 1,
+                    }}
+                  />
+                )}
               </Box>
             );
           })}

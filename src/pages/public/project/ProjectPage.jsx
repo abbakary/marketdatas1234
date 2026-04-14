@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box, Container, Typography, TextField, InputAdornment, Card, CardContent,
@@ -10,6 +10,7 @@ import {
   MoreVertical, Users, GitFork, Star, Clock, CheckCircle, Play,
   SlidersHorizontal, TrendingUp, ArrowUpRight, Plus, X, Image as ImageIcon,
   Tag, Info, DollarSign, Upload, FileText,
+  Grid3x3, List,
 } from "lucide-react";
 import ProjectFiltersPanel from "../components/ProjectFiltersPanel";
 import PageLayout from "../components/PageLayout";
@@ -42,6 +43,8 @@ export default function ProjectPage() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
+  const [viewType, setViewType] = useState("grid"); // grid | list
+  const [sortBy, setSortBy] = useState("hotness");
   const [isFiltersPanelOpen, setIsFiltersPanelOpen] = useState(false);
   const [filters, setFilters] = useState({
     tagSearch: "",
@@ -112,7 +115,16 @@ export default function ProjectPage() {
     setAppliedFilters(cleared);
   };
 
-  const filtered = projects.filter(d => {
+  const sortOptions = [
+    { value: "hotness", label: "Hotness" },
+    { value: "most-funded", label: "Highest Funding Goal" },
+    { value: "most-stars", label: "Most Stars" },
+    { value: "most-voted", label: "Most Votes" },
+    { value: "most-downloaded", label: "Most Downloaded" },
+  ];
+
+  const filtered = useMemo(() => {
+    const rows = projects.filter(d => {
     const ms = d.title.toLowerCase().includes(search.toLowerCase()) || 
                d.author.toLowerCase().includes(search.toLowerCase()) || 
                d.tags.some(t => t.toLowerCase().includes(search.toLowerCase()));
@@ -137,10 +149,31 @@ export default function ProjectPage() {
     const matchTags = !appliedFilters.tagSearch || 
                        d.tags.some(t => t.toLowerCase().includes(appliedFilters.tagSearch.toLowerCase()));
 
-    return ms && mc && mst && matchAdvancedStatus && matchAdvancedCategory && 
-           matchProjectType && matchMonetization && matchProgress && 
-           matchContributors && matchStars && matchTags;
-  });
+      return ms && mc && mst && matchAdvancedStatus && matchAdvancedCategory && 
+             matchProjectType && matchMonetization && matchProgress && 
+             matchContributors && matchStars && matchTags;
+    });
+
+    const num = (v) => Number(String(v || "").replace(/[^0-9.]/g, "")) || 0;
+    return [...rows].sort((a, b) => {
+      switch (sortBy) {
+        case "most-funded":
+          return num(b.fundingGoal) - num(a.fundingGoal);
+        case "most-stars":
+          return (b.stars || 0) - (a.stars || 0);
+        case "most-voted":
+          return (b.votes || 0) - (a.votes || 0);
+        case "most-downloaded":
+          return num(b.downloads) - num(a.downloads);
+        case "hotness":
+        default: {
+          const heatA = (a.votes || 0) + (a.stars || 0) / 10 + (a.contributors || 0) / 5;
+          const heatB = (b.votes || 0) + (b.stars || 0) / 10 + (b.contributors || 0) / 5;
+          return heatB - heatA;
+        }
+      }
+    });
+  }, [projects, search, selectedCategory, selectedStatus, appliedFilters, sortBy]);
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => {
@@ -204,8 +237,17 @@ export default function ProjectPage() {
       <Box sx={{ minHeight: "100vh", backgroundColor: "var(--bg-gray)", py: 4 }}>
         <Container maxWidth="xl">
           {/* Header */}
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 4, flexWrap: "wrap", gap: 2 }}>
-            <Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: { xs: "flex-start", md: "center" },
+              mb: 4,
+              flexWrap: { xs: "wrap", md: "nowrap" },
+              gap: 2,
+            }}
+          >
+            <Box sx={{ flex: 1, minWidth: 0 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
                 <FolderOpen size={28} color={PRIMARY} />
                 <Typography sx={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--text-dark)" }}>Project Marketplace</Typography>
@@ -216,7 +258,20 @@ export default function ProjectPage() {
             </Box>
             <Box
               onClick={handleOpenModal}
-              sx={{ px: 2.5, py: 1.2, backgroundColor: PRIMARY, borderRadius: "8px", cursor: "pointer", display: "flex", alignItems: "center", gap: 1, "&:hover": { backgroundColor: "#e67e00" } }}>
+              sx={{
+                px: 2.5,
+                py: 1.2,
+                backgroundColor: PRIMARY,
+                borderRadius: "8px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+                "&:hover": { backgroundColor: "#e67e00" },
+              }}
+            >
               <Plus size={16} color="#fff" />
               <Typography sx={{ color: "#fff", fontWeight: 700, fontSize: "0.9rem" }}>Request Custom Project</Typography>
             </Box>
@@ -271,6 +326,65 @@ export default function ProjectPage() {
             }}
           />
 
+          {/* Controls: sort + view (always visible) */}
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2, mb: 3, flexWrap: "wrap" }}>
+            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+              {sortOptions.map((o) => (
+                <Chip
+                  key={o.value}
+                  label={o.label}
+                  onClick={() => setSortBy(o.value)}
+                  variant={sortBy === o.value ? "filled" : "outlined"}
+                  sx={{
+                    borderRadius: "6px",
+                    fontSize: "0.82rem",
+                    height: 30,
+                    backgroundColor: sortBy === o.value ? PRIMARY : "var(--card-bg)",
+                    color: sortBy === o.value ? "#fff" : "var(--text-dark)",
+                    borderColor: "var(--border-color)",
+                  }}
+                />
+              ))}
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 0.5, backgroundColor: "var(--card-bg)", borderRadius: "8px", padding: "4px", border: `1px solid var(--border-color)` }}>
+              <Box
+                onClick={() => setViewType("grid")}
+                sx={{
+                  p: 0.8,
+                  borderRadius: "6px",
+                  backgroundColor: viewType === "grid" ? "var(--bg-secondary)" : "transparent",
+                  border: viewType === "grid" ? `1px solid var(--border-color)` : "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  "&:hover": { backgroundColor: "var(--hover-bg)" },
+                }}
+                title="Grid View"
+              >
+                <Grid3x3 size={18} color={viewType === "grid" ? PRIMARY : themeColors.textMuted} />
+              </Box>
+              <Box
+                onClick={() => setViewType("list")}
+                sx={{
+                  p: 0.8,
+                  borderRadius: "6px",
+                  backgroundColor: viewType === "list" ? "var(--bg-secondary)" : "transparent",
+                  border: viewType === "list" ? `1px solid var(--border-color)` : "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  "&:hover": { backgroundColor: "var(--hover-bg)" },
+                }}
+                title="List View"
+              >
+                <List size={18} color={viewType === "list" ? PRIMARY : themeColors.textMuted} />
+              </Box>
+            </Box>
+          </Box>
+
           {/* Filters */}
           <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
@@ -290,11 +404,18 @@ export default function ProjectPage() {
           </Box>
 
           {/* Project Cards */}
-          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2,1fr)", lg: "repeat(3,1fr)" }, gap: 3 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: viewType === "grid" ? { xs: "1fr", sm: "repeat(2,1fr)", lg: "repeat(3,1fr)" } : "1fr",
+              gap: 3,
+            }}
+          >
             {filtered.map(d => (
               <ProjectDatasetCard
                 key={d.id}
                 dataset={d}
+                viewType={viewType}
                 onOpen={() => navigate(`/dataset-info/${d.id}`, { state: { dataset: d } })}
                 onVote={(e) => handleVote(d.id, e)}
                 themeColors={themeColors}
@@ -538,13 +659,117 @@ export default function ProjectPage() {
   );
 }
 
-function ProjectDatasetCard({ dataset, onOpen, onVote, themeColors, PRIMARY, SECONDARY }) {
+function ProjectDatasetCard({ dataset, onOpen, onVote, themeColors, PRIMARY, SECONDARY, viewType = "grid" }) {
   const sc = statusColors[dataset.status] || statusColors.Active;
 
+  if (viewType === "list") {
+    return (
+      <Box
+        onClick={onOpen}
+        sx={{
+          display: "flex",
+          gap: 2,
+          p: 2,
+          backgroundColor: "var(--card-bg)",
+          border: `1px solid var(--border-color)`,
+          borderRadius: "12px",
+          cursor: "pointer",
+          transition: "all 0.25s ease",
+          alignItems: "stretch",
+          "&:hover": {
+            boxShadow: "0 10px 24px rgba(97,197,195,0.12)",
+            borderColor: PRIMARY,
+          },
+        }}
+      >
+        <Box
+          sx={{
+            width: 132,
+            height: 96,
+            borderRadius: "10px",
+            backgroundImage: `url(${dataset.image})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            flexShrink: 0,
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          <Box sx={{ position: "absolute", top: 8, left: 8, px: 1, py: 0.25, borderRadius: 1, backgroundColor: sc.bg, border: `1px solid ${sc.border}` }}>
+            <Typography sx={{ fontSize: "0.7rem", fontWeight: 800, color: sc.color }}>{dataset.status}</Typography>
+          </Box>
+        </Box>
+
+        <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <Box>
+            <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
+              <Typography
+                sx={{
+                  fontSize: "0.98rem",
+                  fontWeight: 800,
+                  color: "var(--text-dark)",
+                  lineHeight: 1.35,
+                  flex: 1,
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}
+              >
+                {dataset.title}
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={(e) => e.stopPropagation()}
+                sx={{ p: 0.5 }}
+              >
+                <MoreVertical size={16} color="var(--text-muted)" />
+              </IconButton>
+            </Box>
+
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.6, flexWrap: "wrap" }}>
+              <Typography sx={{ fontSize: "0.75rem", color: SECONDARY, fontWeight: 800, backgroundColor: `${SECONDARY}10`, px: 1, py: 0.2, borderRadius: 1 }}>
+                {dataset.projectType || "General Project"}
+              </Typography>
+              <Typography sx={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{dataset.author}</Typography>
+              <Typography sx={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>• {dataset.updated}</Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, mt: 1.2 }}>
+            <Box sx={{ display: "flex", gap: 1.6, flexWrap: "wrap", color: "var(--text-muted)", fontSize: "0.78rem" }}>
+              <span><b style={{ color: "var(--text-dark)" }}>{dataset.progress}%</b> progress</span>
+              <span><b style={{ color: "var(--text-dark)" }}>{dataset.stars}</b> stars</span>
+              <span><b style={{ color: "var(--text-dark)" }}>{dataset.contributors}</b> contributors</span>
+            </Box>
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              sx={{
+                fontSize: "0.75rem",
+                fontWeight: 800,
+                textTransform: "none",
+                borderColor: PRIMARY,
+                color: PRIMARY,
+                borderRadius: 1.5,
+                "&:hover": { backgroundColor: PRIMARY, color: "#fff", borderColor: PRIMARY },
+              }}
+            >
+              View
+            </Button>
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
-    <Card sx={{ borderRadius: "12px", overflow: "hidden", border: `1px solid var(--border-color)`, boxShadow: "none", transition: "all 0.3s ease", cursor: "pointer", "&:hover": { transform: "translateY(-4px)", boxShadow: "0 10px 24px rgba(97,197,195,0.12)", borderColor: PRIMARY } }} onClick={onOpen}>
+    <Card sx={{ borderRadius: "12px", overflow: "hidden", border: `1px solid var(--border-color)`, boxShadow: "none", transition: "all 0.25s ease", cursor: "pointer", "&:hover": { transform: "translateY(-3px)", boxShadow: "0 10px 24px rgba(97,197,195,0.12)", borderColor: PRIMARY } }} onClick={onOpen}>
       {/* Image */}
-      <Box sx={{ height: 160, backgroundImage: `url(${dataset.image})`, backgroundSize: "cover", backgroundPosition: "center", position: "relative" }}>
+      <Box sx={{ height: 132, backgroundImage: `url(${dataset.image})`, backgroundSize: "cover", backgroundPosition: "center", position: "relative" }}>
         <Box sx={{ position: "absolute", top: 8, left: 8, px: 1, py: 0.3, borderRadius: 1, backgroundColor: sc.bg, border: `1px solid ${sc.border}` }}>
           <Typography sx={{ fontSize: "0.7rem", fontWeight: 700, color: sc.color }}>{dataset.status}</Typography>
         </Box>
@@ -559,7 +784,7 @@ function ProjectDatasetCard({ dataset, onOpen, onVote, themeColors, PRIMARY, SEC
         </Box>
       </Box>
 
-      <CardContent sx={{ p: 2.5 }}>
+      <CardContent sx={{ p: 2 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 1, mb: 0.5 }}>
           <Typography sx={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-dark)", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{dataset.title}</Typography>
           <IconButton size="small" sx={{ p: 0.5 }}>
@@ -575,8 +800,8 @@ function ProjectDatasetCard({ dataset, onOpen, onVote, themeColors, PRIMARY, SEC
         </Box>
 
         {/* Tags */}
-        <Box sx={{ display: "flex", gap: 0.6, flexWrap: "wrap", mb: 1.2 }}>
-          {dataset.tags.slice(0, 3).map(tag => (
+        <Box sx={{ display: "flex", gap: 0.6, flexWrap: "wrap", mb: 1 }}>
+          {dataset.tags.slice(0, 2).map(tag => (
             <Box key={tag} sx={{ px: 0.8, py: 0.2, borderRadius: 1, backgroundColor: "var(--bg-secondary)" }}>
               <Typography sx={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>#{tag}</Typography>
             </Box>
@@ -584,7 +809,7 @@ function ProjectDatasetCard({ dataset, onOpen, onVote, themeColors, PRIMARY, SEC
         </Box>
 
         {/* Progress */}
-        <Box sx={{ mb: 1.5 }}>
+        <Box sx={{ mb: 1.2 }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
             <Typography sx={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Progress</Typography>
             <Typography sx={{ fontSize: "0.75rem", fontWeight: 700, color: dataset.progress === 100 ? "#16a34a" : PRIMARY }}>{dataset.progress}%</Typography>

@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Database, DollarSign, Settings, FileCheck, BarChart3,
   ShoppingCart, Heart, ListChecks, Package, Eye, Bookmark, History, FileText,
-  Menu, X, LogOut, Bell, Search, ChevronDown, ChevronRight, User, Zap, Send,
+  Menu, X, LogOut, Bell, Search, ChevronDown, ChevronRight, User, Zap, Send, CreditCard, Wallet,
 } from 'lucide-react';
 import { useThemeColors } from '../../../utils/useThemeColors';
 import logo from '../../../assets/logo1.png';
@@ -17,6 +17,8 @@ const roleNavItems = {
     { label: 'User Management', href: '/dashboard/admin/users', icon: Users },
     { label: 'Datasets', href: '/dashboard/admin/datasets', icon: Database },
     { label: 'Project Requests', href: '/dashboard/admin/requests', icon: Send },
+    { label: 'Subscriptions', href: '/dashboard/admin/subscriptions', icon: CreditCard },
+    { label: 'Fund Requests', href: '/dashboard/admin/funds', icon: Wallet },
     { label: 'Custom Reports', href: '/dashboard/admin/reports', icon: FileText },
     { label: 'Projects', href: '/dashboard/admin/projects', icon: BarChart3 },
     { label: 'Revenue Reports', href: '/dashboard/admin/revenue', icon: DollarSign },
@@ -28,6 +30,8 @@ const roleNavItems = {
     { label: 'Approvals', href: '/dashboard/editor/approvals', icon: ListChecks },
     { label: 'Moderation', href: '/dashboard/editor/moderation', icon: Eye },
     { label: 'Project Requests', href: '/dashboard/editor/requests', icon: Send },
+    { label: 'Subscriptions', href: '/dashboard/editor/subscriptions', icon: CreditCard },
+    { label: 'Fund Requests', href: '/dashboard/editor/funds', icon: Wallet },
     { label: 'Custom Reports', href: '/dashboard/editor/reports', icon: FileText },
     { label: 'Projects', href: '/dashboard/editor/projects', icon: BarChart3 },
     { label: 'Revenue Analytics', href: '/dashboard/editor/analytics', icon: BarChart3 },
@@ -317,6 +321,18 @@ export default function DashboardLayout({ children, role }) {
           {navItems.map((item, index) => {
             const isActive = location.pathname === item.href;
             const Icon = item.icon;
+            const inactiveItemBg = themeColors.isDarkMode
+              ? 'rgba(2, 6, 23, 0.35)'
+              : 'rgba(0, 0, 0, 0.14)';
+            const inactiveItemBorder = themeColors.isDarkMode
+              ? 'rgba(255, 255, 255, 0.16)'
+              : 'rgba(255, 255, 255, 0.22)';
+            const inactiveIconBg = themeColors.isDarkMode
+              ? 'rgba(255, 255, 255, 0.10)'
+              : 'rgba(255, 255, 255, 0.18)';
+            const inactiveIconColor = themeColors.isDarkMode
+              ? '#E2E8F0'
+              : 'rgba(255, 255, 255, 0.98)';
 
             return (
               <Link
@@ -328,23 +344,21 @@ export default function DashboardLayout({ children, role }) {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 12,
-                  padding: '12px 14px',
+                  padding: '14px 14px',
                   borderRadius: 12,
-                  fontSize: 13,
-                  fontWeight: isActive ? 700 : 600,
+                  fontSize: 15,
+                  fontWeight: isActive ? 800 : 700,
                   textDecoration: 'none',
                   background: isActive
                     ? currentRoleStyle.accentGradient
-                    : themeColors.isDarkMode
-                    ? 'rgba(255, 255, 255, 0.05)'
-                    : 'rgba(255, 255, 255, 0.2)',
-                  color: isActive ? '#fff' : themeColors.isDarkMode ? '#e2e8f0' : '#fff',
+                    : inactiveItemBg,
+                  color: isActive ? '#fff' : themeColors.isDarkMode ? '#F1F5F9' : '#fff',
                   animation: `slideIn 0.4s ease forwards ${index * 0.05}s`,
                   opacity: 0,
                   position: 'relative',
                   overflow: 'hidden',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  border: isActive ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid rgba(255, 255, 255, 0.15)',
+                  border: isActive ? '1px solid rgba(255, 255, 255, 0.35)' : `1px solid ${inactiveItemBorder}`,
                 }}
               >
                 <div
@@ -352,21 +366,19 @@ export default function DashboardLayout({ children, role }) {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    width: 36,
-                    height: 36,
+                    width: 40,
+                    height: 40,
                     borderRadius: 10,
                     background: isActive
                       ? 'rgba(255, 255, 255, 0.25)'
-                      : themeColors.isDarkMode
-                      ? 'rgba(255, 255, 255, 0.1)'
-                      : 'rgba(255, 255, 255, 0.15)',
-                    color: isActive ? '#fff' : themeColors.isDarkMode ? '#cbd5e1' : '#fff',
+                      : inactiveIconBg,
+                    color: isActive ? '#fff' : inactiveIconColor,
                     transition: 'all 0.3s',
                     backdropFilter: 'blur(10px)',
                     border: '1px solid rgba(255, 255, 255, 0.2)',
                   }}
                 >
-                  <Icon size={18} strokeWidth={2.5} />
+                  <Icon size={20} strokeWidth={2.6} />
                 </div>
                 <span style={{ flex: 1, letterSpacing: '-0.01em' }}>{item.label}</span>
                 {isActive && <ChevronRight size={16} color="#fff" />}

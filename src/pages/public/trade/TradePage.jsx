@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Typography,
@@ -177,7 +177,8 @@ export default function TradePage() {
     return trades;
   };
 
-  const tradeDatasets = generateTradeDatasets();
+  // Generate once (theme toggles shouldn't regenerate large arrays)
+  const tradeDatasets = useMemo(() => generateTradeDatasets(), []);
 
   useEffect(() => {
     setLoadedCount(itemsPerLoad);

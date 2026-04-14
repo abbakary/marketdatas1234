@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Typography,
@@ -205,7 +205,8 @@ export default function DatasetsPage() {
     return datasets;
   };
 
-  const trendingDatasets = generateDemoDatasets();
+  // Generate once (theme toggles shouldn't regenerate thousands of rows)
+  const trendingDatasets = useMemo(() => generateDemoDatasets(), []);
 
   // Reset loaded count when search, category, or sorting changes
   useEffect(() => {
@@ -660,105 +661,88 @@ export default function DatasetsPage() {
                   </Typography>
                 </Box>
 
-                {/* Now control the subcategory selection */}
-                {selectedCategory?.selectedSubcategory && (
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    {/* Sorting Dropdown */}
-                    <Select
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
+                {/* Sorting + view controls (always visible) */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <Select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      px: 1.5,
+                      py: 0.8,
+                      backgroundColor: themeColors.bgSecondary,
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      border: `1px solid ${themeColors.border}`,
+                      fontSize: "0.9rem",
+                      fontWeight: 600,
+                      color: themeColors.text,
+                      transition: "all 0.2s",
+                      minWidth: "140px",
+                      height: 40,
+                      "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                      "&:hover": { backgroundColor: themeColors.hoverBg },
+                      "&.Mui-focused": { backgroundColor: themeColors.hoverBg, outline: "none" },
+                      "& .MuiSvgIcon-root": { color: themeColors.textMuted },
+                    }}
+                  >
+                    {sortOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 0.5,
+                      backgroundColor: themeColors.bgSecondary,
+                      borderRadius: "8px",
+                      padding: "4px",
+                      border: `1px solid ${themeColors.border}`,
+                    }}
+                  >
+                    <Box
+                      onClick={() => setViewType("grid")}
                       sx={{
+                        p: 0.8,
+                        borderRadius: "6px",
+                        backgroundColor: viewType === "grid" ? themeColors.card : "transparent",
+                        border: viewType === "grid" ? `1px solid ${themeColors.border}` : "none",
+                        cursor: "pointer",
                         display: "flex",
                         alignItems: "center",
-                        gap: 1,
-                        px: 1.5,
-                        py: 0.8,
-                        backgroundColor: themeColors.bgSecondary,
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        border: `1px solid ${themeColors.border}`,
-                        fontSize: "0.9rem",
-                        fontWeight: 600,
-                        color: themeColors.text,
+                        justifyContent: "center",
                         transition: "all 0.2s",
-                        minWidth: "120px",
-                        height: 40,
-                        "& .MuiOutlinedInput-notchedOutline": {
-                          border: "none",
-                        },
-                        "&:hover": {
-                          backgroundColor: themeColors.hoverBg,
-                        },
-                        "&.Mui-focused": {
-                          backgroundColor: themeColors.hoverBg,
-                          outline: "none",
-                        },
-                        "& .MuiSvgIcon-root": {
-                          color: themeColors.textMuted,
-                        },
+                        "&:hover": { backgroundColor: themeColors.hoverBg },
                       }}
+                      title="Grid View"
                     >
-                      {sortOptions.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-
-                    {/* View Toggle */}
+                      <Grid3x3 size={18} color={viewType === "grid" ? PRIMARY_COLOR : themeColors.textMuted} />
+                    </Box>
                     <Box
+                      onClick={() => setViewType("list")}
                       sx={{
+                        p: 0.8,
+                        borderRadius: "6px",
+                        backgroundColor: viewType === "list" ? themeColors.card : "transparent",
+                        border: viewType === "list" ? `1px solid ${themeColors.border}` : "none",
+                        cursor: "pointer",
                         display: "flex",
-                        gap: 0.5,
-                        backgroundColor: themeColors.bgSecondary,
-                        borderRadius: "8px",
-                        padding: "4px",
-                        border: `1px solid ${themeColors.border}`,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "all 0.2s",
+                        "&:hover": { backgroundColor: themeColors.hoverBg },
                       }}
+                      title="List View"
                     >
-                      <Box
-                        onClick={() => setViewType("grid")}
-                        sx={{
-                          p: 0.8,
-                          borderRadius: "6px",
-                          backgroundColor: viewType === "grid" ? themeColors.card : "transparent",
-                          border: viewType === "grid" ? `1px solid ${themeColors.border}` : "none",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          transition: "all 0.2s",
-                          "&:hover": {
-                            backgroundColor: themeColors.hoverBg,
-                          },
-                        }}
-                        title="Grid View"
-                      >
-                        <Grid3x3 size={18} color={viewType === "grid" ? PRIMARY_COLOR : themeColors.textMuted} />
-                      </Box>
-                      <Box
-                        onClick={() => setViewType("list")}
-                        sx={{
-                          p: 0.8,
-                          borderRadius: "6px",
-                          backgroundColor: viewType === "list" ? themeColors.card : "transparent",
-                          border: viewType === "list" ? `1px solid ${themeColors.border}` : "none",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          transition: "all 0.2s",
-                          "&:hover": {
-                            backgroundColor: themeColors.hoverBg,
-                          },
-                        }}
-                        title="List View"
-                      >
-                        <List size={18} color={viewType === "list" ? PRIMARY_COLOR : themeColors.textMuted} />
-                      </Box>
+                      <List size={18} color={viewType === "list" ? PRIMARY_COLOR : themeColors.textMuted} />
                     </Box>
                   </Box>
-                )}
+                </Box>
               </Box>
 
               {/* Category  Row - Always show with "All Datasets" visible by default */}
@@ -1316,40 +1300,55 @@ function DatasetCard({ dataset, viewType = "grid" }) {
           </Box>
         </Box>
 
-        {/* File Details - Flattened to one line */}
+        {/* File Details Grid (admin-style, compact + readable) */}
         <Box
           sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1.2,
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 0.8,
             mb: 1.5,
             pb: 1.5,
             borderBottom: `1px solid ${themeColors.border}`,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            width: "100%",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
-            <FileIcon size={14} color={PRIMARY_COLOR} />
-            <Typography sx={{ fontSize: "0.75rem", color: themeColors.textMuted, fontWeight: 500 }}>
-              {dataset.files}
-            </Typography>
-          </Box>
-          <Box sx={{ width: 4, height: 4, borderRadius: "50%", backgroundColor: themeColors.border, flexShrink: 0 }} />
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
-            <HardDrive size={14} color={PRIMARY_COLOR} />
-            <Typography sx={{ fontSize: "0.75rem", color: themeColors.textMuted, fontWeight: 500 }}>
-              {dataset.size}
-            </Typography>
-          </Box>
-          <Box sx={{ width: 4, height: 4, borderRadius: "50%", backgroundColor: themeColors.border, flexShrink: 0 }} />
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
-            <Download size={14} color={PRIMARY_COLOR} />
-            <Typography sx={{ fontSize: "0.75rem", color: themeColors.textMuted, fontWeight: 500 }}>
-              {dataset.downloads}
-            </Typography>
-          </Box>
+          {[
+            { icon: <FileIcon size={14} color={PRIMARY_COLOR} />, label: dataset.files },
+            { icon: <HardDrive size={14} color={PRIMARY_COLOR} />, label: dataset.size },
+            { icon: <Download size={14} color={PRIMARY_COLOR} />, label: dataset.downloads },
+          ].map((item, i) => (
+            <Box
+              key={i}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 0.4,
+                p: 0.9,
+                borderRadius: "10px",
+                backgroundColor: themeColors.bgSecondary,
+                minWidth: 0,
+              }}
+              title={item.label}
+            >
+              {item.icon}
+              <Typography
+                sx={{
+                  fontSize: "0.67rem",
+                  color: themeColors.textMuted,
+                  fontWeight: 600,
+                  textAlign: "center",
+                  lineHeight: 1.25,
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}
+              >
+                {item.label}
+              </Typography>
+            </Box>
+          ))}
         </Box>
       </CardContent>
 

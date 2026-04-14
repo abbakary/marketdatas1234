@@ -1,16 +1,18 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box, Container, Typography, TextField, InputAdornment, Card, CardContent,
-  Chip, LinearProgress, Avatar,
+  Chip, LinearProgress, Avatar, Dialog, DialogTitle, DialogContent, DialogActions, Button, MenuItem, Snackbar, Alert,
 } from "@mui/material";
 import {
   Search, Wallet, ChevronUp, Calendar, FileIcon, HardDrive, Download,
-  MoreVertical, TrendingUp, Users, Target, Clock, CheckCircle, ArrowUpRight,
+  MoreVertical, TrendingUp, Users, Target, Clock, CheckCircle, ArrowUpRight, Plus, Send, Grid3x3, List,
 } from "lucide-react";
 import PageLayout from "../components/PageLayout";
+import fundRequestService from "../../../utils/fundRequestService";
 
 const PRIMARY = "#61C5C3";
+const USER_KEY = "dali-user";
 
 const fundedDatasets = [
   { id: 1, title: "Global Climate Data 2024", author: "GreenData Inc.", category: "Agriculture and Environment", usability: "10.0", updated: "Updated 2 days ago", files: "3 Files (CSV)", size: "2.5 GB", downloads: "1,245 downloads", votes: 48, image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=80", price: "299.00", fundingGoal: 50000, fundingRaised: 42300, backers: 142, daysLeft: 12, fundingType: "Grant", description: "Funding to expand climate monitoring to 50 additional regions globally." },
@@ -35,32 +37,190 @@ export default function FundsPage() {
   const [search, setSearch] = useState("");
   const [selectedType, setSelectedType] = useState("All");
   const [sortBy, setSortBy] = useState("trending");
+  const [viewType, setViewType] = useState("grid");
+  const [requestOpen, setRequestOpen] = useState(false);
+  const [snack, setSnack] = useState({ open: false, severity: "success", message: "" });
+  const [authUser, setAuthUser] = useState(null);
+  const [latestRequest, setLatestRequest] = useState(null);
 
-  const filtered = fundedDatasets.filter(d => {
-    const ms = d.title.toLowerCase().includes(search.toLowerCase()) || d.author.toLowerCase().includes(search.toLowerCase());
-    const mt = selectedType === "All" || d.fundingType === selectedType;
-    return ms && mt;
-  }).sort((a, b) => {
-    if (sortBy === "trending") return b.backers - a.backers;
-    if (sortBy === "ending") return a.daysLeft - b.daysLeft;
-    if (sortBy === "funded") return (b.fundingRaised / b.fundingGoal) - (a.fundingRaised / a.fundingGoal);
-    return 0;
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    category: "Finance and Investment",
+    dataType: "CSV",
+    fundingType: "Grant",
+    amount: "",
+    amountCurrency: "USD",
+    timeline: "0-30 days",
+    company: "",
+    contactName: "",
+    contactEmail: "",
   });
+
+  useEffect(() => {
+    try {
+      const rawUser = localStorage.getItem(USER_KEY) || sessionStorage.getItem(USER_KEY);
+      const parsed = rawUser ? JSON.parse(rawUser) : null;
+      setAuthUser(parsed);
+    } catch {
+      setAuthUser(null);
+    }
+  }, []);
+
+  const userId = authUser?.id || authUser?._id || authUser?.userId || null;
+
+  const refresh = () => {
+    if (!userId) {
+      setLatestRequest(null);
+      return;
+    }
+    setLatestRequest(fundRequestService.getLatestRequestByUser(String(userId)));
+  };
+
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
+
+  const openRequest = () => {
+    setForm((p) => ({
+      ...p,
+      company: p.company || authUser?.company || "",
+      contactName: p.contactName || authUser?.full_name || authUser?.name || "",
+      contactEmail: p.contactEmail || authUser?.email || "",
+    }));
+    setRequestOpen(true);
+  };
+
+  const validate = () => {
+    const errors = [];
+    if (!userId) errors.push("Please sign in first to request funding.");
+    if (!form.title.trim()) errors.push("Title is required.");
+    if (!form.description.trim()) errors.push("Description is required.");
+    if (!form.company.trim()) errors.push("Company is required.");
+    if (!form.contactName.trim()) errors.push("Contact name is required.");
+    if (!form.contactEmail.trim() || !form.contactEmail.includes("@")) errors.push("A valid email is required.");
+    if (!String(form.amount).trim() || Number(form.amount) <= 0) errors.push("Requested amount must be greater than 0.");
+    return errors;
+  };
+
+  const submitFundRequest = () => {
+    const errors = validate();
+    if (errors.length) {
+      setSnack({ open: true, severity: "error", message: errors[0] });
+      return;
+    }
+
+    const req = fundRequestService.createRequest({
+      userId: String(userId),
+      userName: form.contactName.trim(),
+      userEmail: form.contactEmail.trim(),
+      company: form.company.trim(),
+      title: form.title.trim(),
+      description: form.description.trim(),
+      category: form.category,
+      dataType: form.dataType,
+      fundingType: form.fundingType,
+      amount: Number(form.amount),
+      amountCurrency: form.amountCurrency,
+      timeline: form.timeline,
+    });
+
+    setLatestRequest(req);
+    setRequestOpen(false);
+    setSnack({ open: true, severity: "success", message: "Fund request submitted. Awaiting Admin/Editor review." });
+    refresh();
+  };
+
+  const sortOptions = [
+    { value: "trending", label: "Hotness" },
+    { value: "funded", label: "Most Funded" },
+    { value: "ending", label: "Ending Soon" },
+  ];
+
+  const filtered = fundedDatasets
+    .filter((d) => {
+      const ms =
+        d.title.toLowerCase().includes(search.toLowerCase()) ||
+        d.author.toLowerCase().includes(search.toLowerCase());
+      const mt = selectedType === "All" || d.fundingType === selectedType;
+      return ms && mt;
+    })
+    .sort((a, b) => {
+      if (sortBy === "trending") return b.backers - a.backers;
+      if (sortBy === "ending") return a.daysLeft - b.daysLeft;
+      if (sortBy === "funded") return b.fundingRaised / b.fundingGoal - a.fundingRaised / a.fundingGoal;
+      return 0;
+    });
 
   return (
     <PageLayout>
       <Box sx={{ minHeight: "100vh", backgroundColor: "var(--bg-gray)", py: 4, transition: "background-color 0.3s ease" }}>
         <Container maxWidth="xl">
           {/* Header */}
-          <Box sx={{ mb: 4 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
-              <Wallet size={28} color={PRIMARY} />
-              <Typography sx={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--text-dark)" }}>Dataset Funds</Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: { xs: "flex-start", md: "center" },
+              mb: 4,
+              flexWrap: { xs: "wrap", md: "nowrap" },
+              gap: 2,
+            }}
+          >
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
+                <Wallet size={28} color={PRIMARY} />
+                <Typography sx={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--text-dark)" }}>Dataset Funds</Typography>
+              </Box>
+              <Typography sx={{ color: "var(--text-muted)", fontSize: "1rem" }}>
+                Support dataset creation through grants, investments, and crowdfunding campaigns. Or request funding for a dataset initiative that fits your need.
+              </Typography>
             </Box>
-            <Typography sx={{ color: "var(--text-muted)", fontSize: "1rem" }}>
-              Support dataset creation through grants, investments, and crowdfunding campaigns
-            </Typography>
+            <Box
+              onClick={openRequest}
+              sx={{
+                px: 2.5,
+                py: 1.2,
+                backgroundColor: PRIMARY,
+                borderRadius: "8px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+                "&:hover": { backgroundColor: "#49b2b1" },
+              }}
+            >
+              <Plus size={16} color="#fff" />
+              <Typography sx={{ color: "#fff", fontWeight: 700, fontSize: "0.9rem" }}>Request Custom Fund</Typography>
+            </Box>
           </Box>
+
+          {latestRequest && (
+            <Card sx={{ borderRadius: 2, border: `1px solid ${PRIMARY}55`, boxShadow: "none", mb: 3, backgroundColor: `${PRIMARY}10` }}>
+              <CardContent sx={{ p: 2.5, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+                <Box>
+                  <Typography sx={{ fontWeight: 900, color: "var(--text-dark)" }}>Latest fund request</Typography>
+                  <Typography sx={{ color: "var(--text-muted)", fontSize: "0.9rem", mt: 0.3 }}>
+                    {latestRequest.title} • {latestRequest.amountCurrency} {Number(latestRequest.amount || 0).toLocaleString()} • {latestRequest.timeline}
+                  </Typography>
+                </Box>
+                <Chip
+                  label={String(latestRequest.status).toUpperCase()}
+                  size="small"
+                  sx={{
+                    fontWeight: 800,
+                    backgroundColor:
+                      latestRequest.status === "PENDING" ? "#fffbeb" : latestRequest.status === "APPROVED" ? "#f0fdf4" : latestRequest.status === "REJECTED" ? "#fef2f2" : "#f9fafb",
+                    color:
+                      latestRequest.status === "PENDING" ? "#f59e0b" : latestRequest.status === "APPROVED" ? "#16a34a" : latestRequest.status === "REJECTED" ? "#dc2626" : "#6b7280",
+                  }}
+                />
+              </CardContent>
+            </Card>
+          )}
 
           {/* Stats */}
           <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr 1fr", md: "repeat(4,1fr)" }, gap: 2, mb: 4 }}>
@@ -98,17 +258,75 @@ export default function FundsPage() {
             </Box>
           </Box>
 
-          {/* Sort */}
-          <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
-            {[["trending", "Trending"], ["ending", "Ending Soon"], ["funded", "Most Funded"]].map(([v, l]) => (
-              <Box key={v} onClick={() => setSortBy(v)} sx={{ px: 2, py: 0.8, borderRadius: "8px", cursor: "pointer", backgroundColor: sortBy === v ? PRIMARY : "#fff", border: `1px solid ${sortBy === v ? PRIMARY : "#e5e7eb"}` }}>
-                <Typography sx={{ fontSize: "0.85rem", fontWeight: 600, color: sortBy === v ? "#fff" : "#374151" }}>{l}</Typography>
+          {/* Controls: sort + view (always visible) */}
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2, mb: 3, flexWrap: "wrap" }}>
+            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+              {sortOptions.map((opt) => (
+                <Box
+                  key={opt.value}
+                  onClick={() => setSortBy(opt.value)}
+                  sx={{
+                    px: 2,
+                    py: 0.8,
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    backgroundColor: sortBy === opt.value ? PRIMARY : "#fff",
+                    border: `1px solid ${sortBy === opt.value ? PRIMARY : "#e5e7eb"}`,
+                  }}
+                >
+                  <Typography sx={{ fontSize: "0.85rem", fontWeight: 600, color: sortBy === opt.value ? "#fff" : "#374151" }}>
+                    {opt.label}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 0.5, backgroundColor: "#fff", borderRadius: "8px", padding: "4px", border: "1px solid #e5e7eb" }}>
+              <Box
+                onClick={() => setViewType("grid")}
+                sx={{
+                  p: 0.8,
+                  borderRadius: "6px",
+                  backgroundColor: viewType === "grid" ? "#f9fafb" : "transparent",
+                  border: viewType === "grid" ? "1px solid #e5e7eb" : "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  "&:hover": { backgroundColor: "#f3f4f6" },
+                }}
+                title="Grid View"
+              >
+                <Grid3x3 size={18} color={viewType === "grid" ? PRIMARY : "#6b7280"} />
               </Box>
-            ))}
+              <Box
+                onClick={() => setViewType("list")}
+                sx={{
+                  p: 0.8,
+                  borderRadius: "6px",
+                  backgroundColor: viewType === "list" ? "#f9fafb" : "transparent",
+                  border: viewType === "list" ? "1px solid #e5e7eb" : "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  "&:hover": { backgroundColor: "#f3f4f6" },
+                }}
+                title="List View"
+              >
+                <List size={18} color={viewType === "list" ? PRIMARY : "#6b7280"} />
+              </Box>
+            </Box>
           </Box>
 
           {/* Funding Cards */}
-          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2,1fr)", lg: "repeat(3,1fr)" }, gap: 3 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: viewType === "grid" ? { xs: "1fr", sm: "repeat(2,1fr)", lg: "repeat(3,1fr)" } : "1fr",
+              gap: 3,
+            }}
+          >
             {filtered.map(d => (
               <FundingDatasetCard key={d.id} dataset={d} onOpen={() => navigate(`/dataset-info/${d.id}`, { state: { dataset: d } })} />
             ))}
@@ -121,6 +339,111 @@ export default function FundsPage() {
             </Box>
           )}
         </Container>
+
+        {/* Request Custom Fund dialog */}
+        <Dialog open={requestOpen} onClose={() => setRequestOpen(false)} fullWidth maxWidth="sm">
+          <DialogTitle sx={{ fontWeight: 900 }}>Request Custom Fund</DialogTitle>
+          <DialogContent sx={{ pt: 2 }}>
+            <Alert severity="info" variant="outlined" sx={{ mb: 2 }}>
+              Your request will be reviewed and managed by Admin/Editor roles.
+            </Alert>
+
+            <Box sx={{ display: "grid", gap: 1.5 }}>
+              <TextField
+                label="Request title"
+                placeholder="e.g. Funding for Healthcare Analytics Dataset Expansion"
+                value={form.title}
+                onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
+                fullWidth
+              />
+              <TextField
+                label="Describe your funding need"
+                placeholder="What dataset are you building or improving, and why you need funding?"
+                value={form.description}
+                onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
+                fullWidth
+                multiline
+                minRows={3}
+              />
+
+              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.5 }}>
+                <TextField select label="Funding type" value={form.fundingType} onChange={(e) => setForm((p) => ({ ...p, fundingType: e.target.value }))} fullWidth>
+                  {["Grant", "Investment", "Research Grant", "Crowdfund"].map((t) => (
+                    <MenuItem key={t} value={t}>{t}</MenuItem>
+                  ))}
+                </TextField>
+                <TextField select label="Data type" value={form.dataType} onChange={(e) => setForm((p) => ({ ...p, dataType: e.target.value }))} fullWidth>
+                  {["CSV", "JSON", "Images", "Text", "API", "Mixed"].map((t) => (
+                    <MenuItem key={t} value={t}>{t}</MenuItem>
+                  ))}
+                </TextField>
+              </Box>
+
+              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.5 }}>
+                <TextField
+                  label="Requested amount"
+                  type="number"
+                  inputProps={{ min: 1 }}
+                  value={form.amount}
+                  onChange={(e) => setForm((p) => ({ ...p, amount: e.target.value }))}
+                  fullWidth
+                />
+                <TextField select label="Currency" value={form.amountCurrency} onChange={(e) => setForm((p) => ({ ...p, amountCurrency: e.target.value }))} fullWidth>
+                  {["USD", "EUR", "GBP"].map((c) => (
+                    <MenuItem key={c} value={c}>{c}</MenuItem>
+                  ))}
+                </TextField>
+              </Box>
+
+              <TextField select label="Timeline" value={form.timeline} onChange={(e) => setForm((p) => ({ ...p, timeline: e.target.value }))} fullWidth>
+                {["0-30 days", "1-3 months", "3-6 months", "6-12 months"].map((t) => (
+                  <MenuItem key={t} value={t}>{t}</MenuItem>
+                ))}
+              </TextField>
+
+              <TextField
+                label="Company"
+                value={form.company}
+                onChange={(e) => setForm((p) => ({ ...p, company: e.target.value }))}
+                fullWidth
+              />
+
+              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.5 }}>
+                <TextField
+                  label="Contact name"
+                  value={form.contactName}
+                  onChange={(e) => setForm((p) => ({ ...p, contactName: e.target.value }))}
+                  fullWidth
+                />
+                <TextField
+                  label="Contact email"
+                  value={form.contactEmail}
+                  onChange={(e) => setForm((p) => ({ ...p, contactEmail: e.target.value }))}
+                  fullWidth
+                />
+              </Box>
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button onClick={() => setRequestOpen(false)} sx={{ textTransform: "none", fontWeight: 800 }}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={submitFundRequest}
+              startIcon={<Send size={16} />}
+              sx={{ textTransform: "none", fontWeight: 900, backgroundColor: PRIMARY, boxShadow: "none", "&:hover": { backgroundColor: "#49b2b1", boxShadow: "none" } }}
+            >
+              Submit request
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Snackbar open={snack.open} autoHideDuration={4000} onClose={() => setSnack((s) => ({ ...s, open: false }))} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
+          <Alert onClose={() => setSnack((s) => ({ ...s, open: false }))} severity={snack.severity} sx={{ width: "100%" }}>
+            {snack.message}
+          </Alert>
+        </Snackbar>
       </Box>
     </PageLayout>
   );

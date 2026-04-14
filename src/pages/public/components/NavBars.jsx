@@ -15,7 +15,7 @@ import {
 import {
   Database,
   Menu as MenuIcon,
-  DollarSign,
+  CreditCard,
   FolderOpen,
   Wallet,
   BarChart3,
@@ -103,7 +103,7 @@ export default function NavBar() {
   const navLinks = [
     { label: "Dataset", path: "/public/datasets", icon: Database },
     { label: "Project", path: "/public/project", icon: FolderOpen },
-    { label: "Budget", path: "/public/budget", icon: DollarSign },
+    { label: "Subscription", path: "/public/subscription", icon: CreditCard },
     { label: "Funds", path: "/public/funds", icon: Wallet },
     { label: "Trade", path: "/public/trade", icon: Globe },
     { label: "Analysis", path: "/public/analysis", icon: BarChart3 },
