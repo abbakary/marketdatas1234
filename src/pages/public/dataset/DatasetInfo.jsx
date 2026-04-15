@@ -45,6 +45,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import PageLayout from "../components/PageLayout";
+import { useThemeColors } from "../../../utils/useThemeColors";
 
 const PRIMARY_COLOR = "#61C5C3";
 
@@ -54,6 +55,7 @@ export default function DatasetInfo() {
   const navigate = useNavigate();
   const [tab, setTab] = useState(0);
   const [expandAll, setExpandAll] = useState(false);
+  const colors = useThemeColors();
 
   const dataset = location.state?.dataset || {};
 
@@ -209,37 +211,37 @@ export default function DatasetInfo() {
   const titleSx = {
     fontSize: { xs: "1.9rem", md: "2.9rem" },
     fontWeight: 900,
-    color: "#202124",
+    color: colors.text,
     lineHeight: 1.15,
   };
 
   const sectionTitleSx = {
     fontSize: "1.1rem",
     fontWeight: 900,
-    color: "#111827",
+    color: colors.text,
   };
 
   const bodySx = {
     fontSize: "0.92rem",
-    color: "#374151",
+    color: colors.textMuted,
     lineHeight: 1.8,
   };
 
   const smallSx = {
     fontSize: "0.84rem",
-    color: "#6b7280",
+    color: colors.textMuted,
   };
 
   const sideLabelSx = {
     fontSize: "0.95rem",
     fontWeight: 800,
-    color: "#111827",
+    color: colors.text,
     mb: 0.5,
   };
 
   const sideValueSx = {
     fontSize: "0.92rem",
-    color: "#4b5563",
+    color: colors.textMuted,
     lineHeight: 1.7,
   };
 
@@ -256,11 +258,11 @@ export default function DatasetInfo() {
           width: 42,
           height: 42,
           borderRadius: "50%",
-          border: "1px solid #e5e7eb",
+          border: `1px solid ${colors.border}`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "#111827",
+          color: colors.text,
           flexShrink: 0,
         }}
       >
@@ -272,19 +274,19 @@ export default function DatasetInfo() {
           sx={{
             fontSize: "0.95rem",
             fontWeight: 800,
-            color: "#111827",
+            color: colors.text,
             mb: 0.5,
           }}
         >
           {title}
         </Typography>
         <Typography
-          sx={{ fontSize: "1rem", fontWeight: 900, color: "#111827" }}
+          sx={{ fontSize: "1rem", fontWeight: 900, color: colors.text }}
         >
           {value}
         </Typography>
         <Typography
-          sx={{ fontSize: "0.86rem", color: accent || "#6b7280", mt: 0.3 }}
+          sx={{ fontSize: "0.86rem", color: accent || colors.textMuted, mt: 0.3 }}
         >
           {subtext}
         </Typography>
@@ -297,7 +299,7 @@ export default function DatasetInfo() {
       <Box
         sx={{
           minHeight: "100vh",
-          backgroundColor: "#f8f9fb",
+          backgroundColor: colors.bg,
           py: 2,
         }}
       >
@@ -313,6 +315,10 @@ export default function DatasetInfo() {
               fontSize: "0.84rem",
               px: 0,
               minWidth: "auto",
+              "&:hover": {
+                backgroundColor: "transparent",
+                opacity: 0.8,
+              },
             }}
           >
             Back
@@ -344,7 +350,7 @@ export default function DatasetInfo() {
                 sx={{
                   fontSize: "0.8rem",
                   fontWeight: 800,
-                  color: "#6b7280",
+                  color: colors.textMuted,
                   letterSpacing: "0.08em",
                 }}
               >
@@ -367,9 +373,13 @@ export default function DatasetInfo() {
                   textTransform: "none",
                   fontWeight: 800,
                   fontSize: "0.95rem",
-                  color: "#111827",
-                  borderColor: "#d1d5db",
-                  backgroundColor: "#fff",
+                  color: colors.text,
+                  borderColor: colors.border,
+                  backgroundColor: colors.card,
+                  "&:hover": {
+                    backgroundColor: colors.hoverBg,
+                    borderColor: colors.border,
+                  },
                 }}
               >
                 {data.votes}
@@ -386,9 +396,13 @@ export default function DatasetInfo() {
                   fontSize: "0.95rem",
                   px: 2.2,
                   py: 1.1,
-                  color: "#111827",
-                  borderColor: "#d1d5db",
-                  backgroundColor: "#fff",
+                  color: colors.text,
+                  borderColor: colors.border,
+                  backgroundColor: colors.card,
+                  "&:hover": {
+                    backgroundColor: colors.hoverBg,
+                    borderColor: colors.border,
+                  },
                 }}
               >
                 Preview
@@ -404,10 +418,11 @@ export default function DatasetInfo() {
                   fontSize: "0.95rem",
                   px: 2.5,
                   py: 1.1,
-                  backgroundColor: "#111827",
+                  backgroundColor: PRIMARY_COLOR,
+                  color: "#fff",
                   boxShadow: "none",
                   "&:hover": {
-                    backgroundColor: "#1f2937",
+                    backgroundColor: "rgba(97, 197, 195, 0.9)",
                     boxShadow: "none",
                   },
                 }}
@@ -419,7 +434,7 @@ export default function DatasetInfo() {
                 sx={{
                   minWidth: "auto",
                   p: 1,
-                  color: "#111827",
+                  color: colors.text,
                 }}
               >
                 <MoreVertical size={18} />
@@ -434,7 +449,7 @@ export default function DatasetInfo() {
               <Typography
                 sx={{
                   fontSize: "0.98rem",
-                  color: "#4b5563",
+                  color: colors.textMuted,
                   lineHeight: 1.8,
                   mt: 2,
                 }}
@@ -452,11 +467,11 @@ export default function DatasetInfo() {
                   height: 190,
                   borderRadius: "18px",
                   overflow: "hidden",
-                  backgroundColor: "#dbeafe",
+                  backgroundColor: colors.bgSecondary,
                   backgroundImage: `url(${data.image})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
-                  border: "1px solid #e5e7eb",
+                  border: `1px solid ${colors.border}`,
                 }}
               />
             </Grid>
@@ -464,7 +479,7 @@ export default function DatasetInfo() {
 
           <Box
             sx={{
-              borderBottom: "1px solid #e5e7eb",
+              borderBottom: `1px solid ${colors.border}`,
               mb: 4,
             }}
           >
@@ -476,7 +491,7 @@ export default function DatasetInfo() {
               sx={{
                 minHeight: 44,
                 "& .MuiTabs-indicator": {
-                  backgroundColor: "#202124",
+                  backgroundColor: colors.text,
                   height: 3,
                   borderRadius: 999,
                 },
@@ -485,10 +500,10 @@ export default function DatasetInfo() {
                   minHeight: 44,
                   px: 2,
                   fontSize: "0.9rem",
-                  color: "#4b5563",
+                  color: colors.textMuted,
                 },
                 "& .Mui-selected": {
-                  color: "#111827 !important",
+                  color: `${colors.text} !important`,
                   fontWeight: 700,
                 },
               }}
@@ -535,12 +550,12 @@ export default function DatasetInfo() {
                     Showing top {previewData.rows.length} rows of the primary datafile
                   </Typography>
                   
-                  <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e5e7eb', borderRadius: 2, overflow: 'hidden', mb: 4 }}>
+                  <TableContainer component={Paper} elevation={0} sx={{ border: `1px solid ${colors.border}`, borderRadius: 2, overflow: 'hidden', mb: 4, backgroundColor: colors.card }}>
                     <Table size="small">
-                      <TableHead sx={{ backgroundColor: '#f9fafb' }}>
+                      <TableHead sx={{ backgroundColor: colors.bgSecondary }}>
                         <TableRow>
                           {previewData.columns.map((col) => (
-                            <TableCell key={col} sx={{ fontWeight: 800, color: '#4b5563', py: 1.5 }}>{col}</TableCell>
+                            <TableCell key={col} sx={{ fontWeight: 800, color: colors.textMuted, py: 1.5 }}>{col}</TableCell>
                           ))}
                         </TableRow>
                       </TableHead>
@@ -548,7 +563,7 @@ export default function DatasetInfo() {
                         {previewData.rows.map((row, idx) => (
                           <TableRow key={idx} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                             {Object.values(row).map((val, i) => (
-                              <TableCell key={i} sx={{ color: '#374151', py: 1.5 }}>{val}</TableCell>
+                              <TableCell key={i} sx={{ color: colors.textMuted, py: 1.5, borderColor: colors.border }}>{val}</TableCell>
                             ))}
                           </TableRow>
                         ))}
@@ -561,42 +576,42 @@ export default function DatasetInfo() {
                   <Typography sx={{ ...sectionTitleSx, fontSize: "1.2rem", mb: 3 }}>
                     Discussions
                   </Typography>
-                  <List sx={{ width: '100%', bgcolor: 'background.paper', borderRadius: 2, border: '1px solid #e5e7eb' }}>
+                  <List sx={{ width: '100%', bgcolor: colors.card, borderRadius: 2, border: `1px solid ${colors.border}` }}>
                     {mockDiscussions.map((msg, idx) => (
                       <Box key={msg.id}>
                         <Box sx={{ display: 'flex', gap: 2, p: 2.5, alignItems: 'flex-start' }}>
                           <Avatar src={msg.avatar} sx={{ width: 44, height: 44, flexShrink: 0 }} />
                           <Box sx={{ flex: 1 }}>
                             <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }}>
-                              <Typography sx={{ fontSize: '0.95rem', fontWeight: 800, color: '#111827' }}>{msg.user}</Typography>
-                              <Typography sx={{ fontSize: '0.8rem', color: '#6b7280' }}>{msg.timestamp}</Typography>
+                              <Typography sx={{ fontSize: '0.95rem', fontWeight: 800, color: colors.text }}>{msg.user}</Typography>
+                              <Typography sx={{ fontSize: '0.8rem', color: colors.textMuted }}>{msg.timestamp}</Typography>
                             </Stack>
                             <Typography sx={{ ...bodySx, mt: 1, mb: 2 }}>{msg.content}</Typography>
                             <Stack direction="row" spacing={3}>
-                              <Stack direction="row" spacing={0.5} alignItems="center" sx={{ cursor: 'pointer', color: '#4b5563', '&:hover': { color: PRIMARY_COLOR } }}>
+                              <Stack direction="row" spacing={0.5} alignItems="center" sx={{ cursor: 'pointer', color: colors.textMuted, '&:hover': { color: PRIMARY_COLOR } }}>
                                 <ThumbsUp size={16} />
                                 <Typography sx={{ fontSize: '0.85rem', fontWeight: 600 }}>{msg.upvotes}</Typography>
                               </Stack>
-                              <Stack direction="row" spacing={0.5} alignItems="center" sx={{ cursor: 'pointer', color: '#4b5563', '&:hover': { color: PRIMARY_COLOR } }}>
+                              <Stack direction="row" spacing={0.5} alignItems="center" sx={{ cursor: 'pointer', color: colors.textMuted, '&:hover': { color: PRIMARY_COLOR } }}>
                                 <MessageCircle size={16} />
                                 <Typography sx={{ fontSize: '0.85rem', fontWeight: 600 }}>{msg.replies} Replies</Typography>
                               </Stack>
                             </Stack>
                           </Box>
                         </Box>
-                        {idx < mockDiscussions.length - 1 && <Divider variant="inset" component="li" />}
+                        {idx < mockDiscussions.length - 1 && <Divider variant="inset" component="li" sx={{ borderColor: colors.border }} />}
                       </Box>
                     ))}
                   </List>
                   <Box sx={{ mt: 3 }}>
-                    <TextField 
-                      fullWidth 
-                      placeholder="Share your thoughts or ask a question..." 
-                      multiline 
+                    <TextField
+                      fullWidth
+                      placeholder="Share your thoughts or ask a question..."
+                      multiline
                       rows={3}
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3, bgcolor: '#fff' } }}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3, bgcolor: colors.card, borderColor: colors.border } }}
                     />
-                    <Button variant="contained" sx={{ mt: 2, borderRadius: 2, textTransform: 'none', fontWeight: 700, bgcolor: '#111827', px: 4 }}>Post Comment</Button>
+                    <Button variant="contained" sx={{ mt: 2, borderRadius: 2, textTransform: 'none', fontWeight: 700, bgcolor: PRIMARY_COLOR, color: '#fff', px: 4 }}>Post Comment</Button>
                   </Box>
                 </>
               ) : (
@@ -607,28 +622,28 @@ export default function DatasetInfo() {
                   <Grid container spacing={2}>
                     {mockSuggestions.map((sug) => (
                       <Grid xs={12} key={sug.id}>
-                        <Paper elevation={0} sx={{ p: 2.5, border: '1px solid #e5e7eb', borderRadius: 3, position: 'relative' }}>
+                        <Paper elevation={0} sx={{ p: 2.5, border: `1px solid ${colors.border}`, borderRadius: 3, position: 'relative', backgroundColor: colors.card }}>
                           <Stack direction="row" spacing={2} alignItems="flex-start">
                             <Avatar src={sug.avatar} sx={{ width: 32, height: 32 }} />
                             <Box sx={{ flex: 1 }}>
                               <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                <Typography sx={{ fontSize: '0.9rem', fontWeight: 800, color: '#111827' }}>{sug.user}</Typography>
-                                <Chip 
-                                  label={sug.status} 
-                                  size="small" 
-                                  sx={{ 
-                                    bgcolor: `${sug.color}15`, 
-                                    color: sug.color, 
-                                    fontWeight: 800, 
+                                <Typography sx={{ fontSize: '0.9rem', fontWeight: 800, color: colors.text }}>{sug.user}</Typography>
+                                <Chip
+                                  label={sug.status}
+                                  size="small"
+                                  sx={{
+                                    bgcolor: `${sug.color}15`,
+                                    color: sug.color,
+                                    fontWeight: 800,
                                     fontSize: '0.75rem',
                                     borderRadius: '6px'
-                                  }} 
+                                  }}
                                 />
                               </Stack>
                               <Typography sx={{ ...bodySx, mt: 1.5, mb: 1.5, fontWeight: 500 }}>{sug.suggestion}</Typography>
                               <Stack direction="row" spacing={1} alignItems="center">
-                                <Clock size={14} color="#6b7280" />
-                                <Typography sx={{ fontSize: '0.8rem', color: '#6b7280' }}>Suggested {sug.timestamp}</Typography>
+                                <Clock size={14} color={colors.textMuted} />
+                                <Typography sx={{ fontSize: '0.8rem', color: colors.textMuted }}>Suggested {sug.timestamp}</Typography>
                               </Stack>
                             </Box>
                           </Stack>
@@ -636,9 +651,9 @@ export default function DatasetInfo() {
                       </Grid>
                     ))}
                   </Grid>
-                  <Box sx={{ mt: 4, p: 3, border: `1px dashed ${PRIMARY_COLOR}`, borderRadius: 3, textAlign: 'center', bgcolor: '#f0fcfc' }}>
-                    <Typography sx={{ fontWeight: 800, color: '#111827', mb: 1 }}>Have an improvement in mind?</Typography>
-                    <Typography sx={{ fontSize: '0.85rem', color: '#4b5563', mb: 3 }}>Help us make this dataset better by suggesting updates or new fields.</Typography>
+                  <Box sx={{ mt: 4, p: 3, border: `1px dashed ${PRIMARY_COLOR}`, borderRadius: 3, textAlign: 'center', bgcolor: colors.bgSecondary }}>
+                    <Typography sx={{ fontWeight: 800, color: colors.text, mb: 1 }}>Have an improvement in mind?</Typography>
+                    <Typography sx={{ fontSize: '0.85rem', color: colors.textMuted, mb: 3 }}>Help us make this dataset better by suggesting updates or new fields.</Typography>
                     <Button variant="outlined" sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700, borderColor: PRIMARY_COLOR, color: PRIMARY_COLOR }}>Submit a Suggestion</Button>
                   </Box>
                 </>
@@ -653,13 +668,13 @@ export default function DatasetInfo() {
                 justifyContent: "space-between",
                 alignItems: "center",
                 py: 2,
-                borderTop: "1px solid #d1d5db",
+                borderTop: `1px solid ${colors.border}`,
               }}
             >
               <Stack direction="row" spacing={1.2} alignItems="center">
-                <FileText size={20} />
+                <FileText size={20} color={colors.text} />
                 <Typography
-                  sx={{ fontSize: "1rem", fontWeight: 900, color: "#111827" }}
+                  sx={{ fontSize: "1rem", fontWeight: 900, color: colors.text }}
                 >
                   Metadata
                 </Typography>
@@ -676,7 +691,7 @@ export default function DatasetInfo() {
                   />
                 }
                 sx={{
-                  color: "#111827",
+                  color: colors.text,
                   textTransform: "none",
                   fontWeight: 800,
                   fontSize: "0.9rem",
@@ -692,7 +707,8 @@ export default function DatasetInfo() {
                 boxShadow: "none",
                 borderRadius: 0,
                 "&:before": { display: "none" },
-                borderTop: "1px solid #d1d5db",
+                borderTop: `1px solid ${colors.border}`,
+                backgroundColor: colors.card,
               }}
             >
               <AccordionSummary expandIcon={<ChevronDown size={18} />}>
@@ -700,7 +716,7 @@ export default function DatasetInfo() {
                   sx={{
                     fontSize: "0.95rem",
                     fontWeight: 800,
-                    color: "#111827",
+                    color: colors.text,
                   }}
                 >
                   Collaborators
@@ -721,7 +737,8 @@ export default function DatasetInfo() {
                 boxShadow: "none",
                 borderRadius: 0,
                 "&:before": { display: "none" },
-                borderTop: "1px solid #d1d5db",
+                borderTop: `1px solid ${colors.border}`,
+                backgroundColor: colors.card,
               }}
             >
               <AccordionSummary expandIcon={<ChevronDown size={18} />}>
@@ -729,7 +746,7 @@ export default function DatasetInfo() {
                   sx={{
                     fontSize: "0.95rem",
                     fontWeight: 800,
-                    color: "#111827",
+                    color: colors.text,
                   }}
                 >
                   Authors
@@ -750,7 +767,8 @@ export default function DatasetInfo() {
                 boxShadow: "none",
                 borderRadius: 0,
                 "&:before": { display: "none" },
-                borderTop: "1px solid #d1d5db",
+                borderTop: `1px solid ${colors.border}`,
+                backgroundColor: colors.card,
               }}
             >
               <AccordionSummary expandIcon={<ChevronDown size={18} />}>
@@ -758,7 +776,7 @@ export default function DatasetInfo() {
                   sx={{
                     fontSize: "0.95rem",
                     fontWeight: 800,
-                    color: "#111827",
+                    color: colors.text,
                   }}
                 >
                   Coverage
@@ -779,8 +797,9 @@ export default function DatasetInfo() {
                 boxShadow: "none",
                 borderRadius: 0,
                 "&:before": { display: "none" },
-                borderTop: "1px solid #d1d5db",
-                borderBottom: "1px solid #d1d5db",
+                borderTop: `1px solid ${colors.border}`,
+                borderBottom: `1px solid ${colors.border}`,
+                backgroundColor: colors.card,
               }}
             >
               <AccordionSummary expandIcon={<ChevronDown size={18} />}>
@@ -788,7 +807,7 @@ export default function DatasetInfo() {
                   sx={{
                     fontSize: "0.95rem",
                     fontWeight: 800,
-                    color: "#111827",
+                    color: colors.text,
                   }}
                 >
                   DOI Citation
@@ -807,9 +826,9 @@ export default function DatasetInfo() {
               alignItems="center"
               sx={{ mb: 3 }}
             >
-              <GitFork size={20} />
+              <GitFork size={20} color={colors.text} />
               <Typography
-                sx={{ fontSize: "1rem", fontWeight: 900, color: "#111827" }}
+                sx={{ fontSize: "1rem", fontWeight: 900, color: colors.text }}
               >
                 Activity Overview
               </Typography>
@@ -842,7 +861,7 @@ export default function DatasetInfo() {
                   "Engagement",
                   data.engagement,
                   "downloads per view",
-                  "#4b5563",
+                  colors.textMuted,
                 )}
               </Grid>
 
@@ -852,7 +871,7 @@ export default function DatasetInfo() {
                   "Comments",
                   data.comments,
                   "posted",
-                  "#4b5563",
+                  colors.textMuted,
                 )}
               </Grid>
             </Grid>
@@ -864,9 +883,9 @@ export default function DatasetInfo() {
                 alignItems="center"
                 sx={{ mb: 2 }}
               >
-                <Users size={20} />
+                <Users size={20} color={colors.text} />
                 <Typography
-                  sx={{ fontSize: "1rem", fontWeight: 900, color: "#111827" }}
+                  sx={{ fontSize: "1rem", fontWeight: 900, color: colors.text }}
                 >
                   Top Contributors
                 </Typography>
